@@ -1,0 +1,55 @@
+#!/bin/bash
+PhonyIncs=false
+
+FortranDepCore="./bin/FortranDepCore.x"
+
+Usage() {
+	echo "Generates make-compatible dependency rules for Fortran source files."
+	echo "Usage: "$0" [-p] <file>"
+	exit 1
+}
+
+if [ "$#" -gt 2 ]; then
+	Usage
+fi
+
+if [ "$1" == "-p" ]; then
+	PhonyIncs=true
+	shift
+fi
+
+if [ -z "$1" ]; then
+	Usage
+fi
+
+Basename=$(echo "$1" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
+
+Output=$(gcc -E -cpp -dI -I. "$1" |                          #Preprocess file.
+	eval "$FortranDepCore" |                                    #Run through the parser.
+	sed "s|#OBJTARGET#|$Basename.o|g" | sed "s|#FILEDEP#|$1|g") #Replace filenames.
+
+echo "$Output"
+
+if [ "$PhonyIncs" = true ]; then
+
+	Suffix=$(echo "$1" | sed 's|.*\.||')
+
+	Exclude="o mod smod $Suffix"
+
+	echo "$Output" | while IFS= read -r line; do
+		# Take RHS (after ':').
+		rhs="${line#*:}"
+		# Split RHS into tokens.
+		for file in $rhs; do
+			# Trim leading whitespace.
+			file="${file#"${file%%[![:space:]]*}"}"
+			# Check excluded suffixes.
+			skip=false
+			for ext in $Exclude; do
+				[[ "$file" == *.$ext ]] && skip=true
+			done
+			$skip && continue
+			printf '%s:\n' "$file"
+		done
+	done
+fi
