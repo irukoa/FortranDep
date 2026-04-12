@@ -1,0 +1,11 @@
+// User settings.
+{
+  "debug.dbgBinCwd": "./",
+  "terminal.integrated.profiles.linux": {
+    "bash-clean": {
+      "path": "/bin/bash",
+      "args": ["--norc"]
+    }
+  },
+  "terminal.integrated.defaultProfile.linux": "bash-clean"
+}
