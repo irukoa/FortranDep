@@ -60,6 +60,7 @@ runtest: $(TESTEXE) | $(TESTREP)
 		$(RM) $(TESTREP)/*
 		$(RM) $(OBJ)/*.gcda
 		./$(TESTEXE) $(TARGS) 2>&1 | tee $(TESTREP)/TestRun.log
+		$(RM) $(OBJ)/API.gcda
 		lcov --capture --directory $(OBJ) --output-file=test/coverage.info
 		genhtml test/coverage.info --output-directory=$(TESTREP)
 		$(MV) test/coverage.info $(TESTREP)

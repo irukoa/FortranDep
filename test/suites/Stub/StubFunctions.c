@@ -3,7 +3,7 @@
 
 DEFINE_FFF_GLOBALS
 
-FAKE_VOID_FUNC(ApiError_Mock,
-               const ErrorCode,
+FAKE_VOID_FUNC(FDEP_ApiError_Mock,
+               const FDEP_ErrorCode,
                const char *const,
                const uint16_t)

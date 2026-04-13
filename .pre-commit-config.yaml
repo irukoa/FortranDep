@@ -13,3 +13,9 @@ repos:
   rev: v3.12.0-2
   hooks:
   - id: shfmt
+- repo: https://github.com/pseewald/fprettify
+  rev: v0.3.3
+  hooks:
+  - id: fprettify
+    args: ['--indent', '2']
+    verbose: true

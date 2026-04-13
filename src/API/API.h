@@ -8,23 +8,37 @@
 #include <stdlib.h>
 
 APIDEC(void *,
-       ApiMalloc,
+       FDEP_ApiMalloc,
        const size_t Size);
 
+APIDEC(void *,
+       FDEP_ApiRealloc,
+       void        *Ptr,
+       const size_t Sz);
+
 APIDEC(int,
-       ApiFprintf,
+       FDEP_ApiFerror,
+       FILE *Stream);
+
+APIDEC(int,
+       FDEP_ApiFprintf,
        FILE *const       Stream,
        const char *const Format,
        ...);
 
-typedef enum _ErrorCode { ERROR_INPUT, ERROR_ALLOC } ErrorCode;
+typedef enum _FDEP_ErrorCode {
+  NO_ERROR,
+  ERROR_INPUT,
+  ERROR_STREAM,
+  ERROR_ALLOC
+} FDEP_ErrorCode;
 
 APIDEC(void,
-       ApiError,
-       const ErrorCode   ErrCode,
-       const char *const StrFile,
-       const uint16_t    Line);
+       FDEP_ApiError,
+       const FDEP_ErrorCode ErrCode,
+       const char *const    StrFile,
+       const uint16_t       Line);
 
-#define API_ERROR(CODE) ApiError(CODE, __FILE__, __LINE__)
+#define FDEP_API_ERROR(CODE) FDEP_ApiError(CODE, __FILE__, __LINE__)
 
 #endif

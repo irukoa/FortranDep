@@ -1,1 +1,3 @@
 -include test/suites/Stub/Reg.mk
+-include test/suites/TOK/Reg.mk
+-include test/suites/FORTRAN/Reg.mk

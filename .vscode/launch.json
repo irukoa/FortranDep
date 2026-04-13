@@ -4,9 +4,10 @@
     "name": "Dgb BIN",
     "type": "cppdbg",
     "request": "launch",
-    "program": "${workspaceFolder}/bin/target.x",
+    "program": "${workspaceFolder}/bin/FortranDepCore.x",
     "args": [],
     "stopAtEntry": true,
+    "miDebuggerArgs": "-ex \"run < ${workspaceFolder}/${input:inputFile}\"",
     "cwd": "${config:debug.dbgBinCwd}",
     "environment": [],
     "MIMode": "gdb",
@@ -36,5 +37,14 @@
       }
     ]
   }
+  ],
+  "inputs": [
+    {
+      "id": "inputFile",
+      "type": "promptString",
+      "description": "Input file (relative to workspace)",
+      "default": "test/BinExample.f90"
+    }
   ]
+
 }
