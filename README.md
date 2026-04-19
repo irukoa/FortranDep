@@ -41,6 +41,10 @@ file.o: b.mod a.mod
 
 - Fortran `use` statements (module dependencies).
 
+- Fortran `module`/`submodule` tracking.
+
+- We only guarantee correct results for valid Fortran.
+
 - CPP `#include` directives.
 
 - Recursive include resolution.
@@ -48,6 +52,8 @@ file.o: b.mod a.mod
 ### Not supported
 
 - Fortran `include` statements (F77-style).
+
+- Fixed form Fortran.
 
 ## Installation
 

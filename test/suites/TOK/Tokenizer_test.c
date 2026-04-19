@@ -8,28 +8,6 @@ static FILE *PutInFakeStream(const char *const Contents) {
   ASSERT_X(Stream);
   return Stream;
 }
-static const char Contents[] = "module b;&&\n"
-                               "  !acomment\n"
-                               "end module b\n"
-                               "module a\n"
-                               "  use b\n"
-                               "  use, intrinsic :: ISO_FORTRAN_ENV\n"
-                               "  use, NON_intrinsic :: c\n"
-                               "\n"
-                               "  integer, parameter :: dp = kind(1.0d0)\n"
-                               "\n"
-                               "  interface\n"
-                               "    module subroutine sub1()\n"
-                               "    end subroutine\n"
-                               "  end interface\n"
-                               "\n"
-                               "end module a\n"
-                               "submodule (a) as\n"
-                               "  integer, parameter :: a1 = 1\n"
-                               "end submodule\n"
-                               "submodule (as) ass\n"
-                               "  integer, parameter :: as1 = 5\n"
-                               "end submodule\n";
 
 TEST_F(FDEP_Standard,
        TestFDEP_TokenizeNominal) {
@@ -53,11 +31,78 @@ TEST_F(FDEP_Standard,
 }
 
 TEST_F(FDEP_Standard,
-       TestFDEP_TokenizeStreamNominal) {
+       TestFDEP_TokenizeStreamFunctional1) {
   FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
   bool                      Ran  = false;
   FDEP_Statement           *StatementList;
   size_t                    StatementCount;
+  const char                Contents[] = "module a&\n"
+                                         "  &&\n"
+                                         "  &a\n"
+                                         "end &\n"
+                                         "module a&\n"
+                                         " &a\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+  }
+  ASSERT_X(Ran);
+  Ran = false;
+  ASSERT(2 == StatementCount);
+  ASSERT(0 == strcmp(StatementList[0].TokenList[1], "aa"));
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_TokenizeStreamFunctional2) {
+  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran  = false;
+  FDEP_Statement           *StatementList;
+  size_t                    StatementCount;
+  const char                Contents[] = "module a&\n"
+                                         "  &&\n"
+                                         "  &a\n"
+                                         "contains\n"
+                                         "  subroutine &\n"
+                                         "    s(&\n"
+                                         "    )\n"
+                                         "    print*, \"singleline&\" ; end ; end module aa; "
+                                         "module b; end module b\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+  }
+  ASSERT_X(Ran);
+  Ran = false;
+  ASSERT(8 == StatementCount);
+  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "b"));
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_TokenizeStreamFunctional3) {
+  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran  = false;
+  FDEP_Statement           *StatementList;
+  size_t                    StatementCount;
+  const char                Contents[] =
+      "module a&\n"
+      "  &&\n"
+      "  &a\n"
+      "contains\n"
+      "  subroutine &\n"
+      "    s(&\n"
+      "    )\n"
+      "    print*, \"multiline&\n"
+      "        &string!\" ; end ; end module aa; module bb; end module bb\n";
   Data->FakeStream = PutInFakeStream(Contents);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran            = true;
@@ -67,12 +112,47 @@ TEST_F(FDEP_Standard,
   }
   ASSERT_X(Ran);
   Ran = false;
-  ASSERT(18 == StatementCount);
-  ASSERT(0 == strcmp(StatementList[1].TokenList[0], "end"));
+  ASSERT(8 == StatementCount);
+  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bb"));
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_TokenizeStreamFunctional4) {
+  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran  = false;
+  FDEP_Statement           *StatementList;
+  size_t                    StatementCount;
+  const char                Contents[] =
+      "module a&\n"
+      "  &&\n"
+      "  &a\n"
+      "contains\n"
+      "  subroutine &\n"
+      "    s(&\n"
+      "    )\n"
+      "    print*, \"multiline&\n"
+      "        &string!\" ; end ; end module aa; & !mycomment\n "
+      "module bbb; end module bbb\n";
+  Data->FakeStream = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+  }
+  ASSERT_X(Ran);
+  Ran = false;
+  ASSERT(8 == StatementCount);
+  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bbb"));
   FDEP_FreeStatementList(&StatementList, StatementCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
 
 TEST_SUITE(TokenizerSuite,
            TestFDEP_TokenizeNominal,
-           TestFDEP_TokenizeStreamNominal);
+           TestFDEP_TokenizeStreamFunctional1,
+           TestFDEP_TokenizeStreamFunctional2,
+           TestFDEP_TokenizeStreamFunctional3,
+           TestFDEP_TokenizeStreamFunctional4);

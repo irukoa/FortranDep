@@ -154,6 +154,8 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
   char  *Substring;
   char  *SaveSubstring;
   char   SeparatorMarkerString[2];
+  size_t PositionIndex;
+  bool   PrecededByBlanks = true;
   // Statement tokenizing.
   void           *TmpStatementList;
   char          **TokenBuffer;
@@ -203,11 +205,29 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
           break;
         }
       }
+      // Remove the first leading continuation character preceded by blanks.
+      ContPos = NULL;
+      if ((ContPos = strchr(NextLine, ContinuationMarker))) {
+        PositionIndex    = (size_t)(ContPos - NextLine);
+        PrecededByBlanks = true;
+        for (i = 0; i < PositionIndex; i++) {
+          if (NextLine[i] != ' ') {
+            PrecededByBlanks = false;
+            break;
+          }
+        }
+        if (PrecededByBlanks) {
+          // Shift NextLine left.
+          for (i = 0; i < strlen(NextLine) - PositionIndex + 1; i++) {
+            NextLine[i] = NextLine[PositionIndex + i + 1];
+          }
+        }
+      }
       if (StringPreprocess) {
         StringPreprocess(NextLine);
       }
       // Allocate space for the next line.
-      Cap       = strlen(String) + strlen(NextLine) + 2;
+      Cap       = strlen(String) + strlen(NextLine) + 1;
       TmpString = NULL;
       TmpString = FDEP_ApiRealloc((void *)String, sizeof(char) * Cap);
       if (!TmpString) {
@@ -215,8 +235,6 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
         goto error_handler;
       }
       String = (char *)TmpString;
-      // Insert newline before '\0' and concatenate.
-      (void)strcat(String, "\n");
       (void)strcat(String, NextLine);
     }
     // Splits String along statement separator markers.
