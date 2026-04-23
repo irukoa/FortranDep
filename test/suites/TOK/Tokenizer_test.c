@@ -13,15 +13,17 @@ TEST_F(FDEP_Standard,
        TestFDEP_TokenizeNominal) {
   (void)ContextData;
   bool              Ran        = false;
+  FDEP_ErrorCode    ErrorCode  = NO_ERROR;
   const char        String[]   = "my:String";
   const char *const Delimiters = ":";
   char            **TokenList;
   size_t            TokenCount;
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran        = true;
-    TokenCount = FDEP_Tokenize(String, Delimiters, &TokenList, NULL);
+    TokenCount = FDEP_Tokenize(String, Delimiters, &TokenList, &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(TokenCount == 2);
   ASSERT(0 == strcmp(TokenList[0], "my"));
@@ -32,8 +34,9 @@ TEST_F(FDEP_Standard,
 
 TEST_F(FDEP_Standard,
        TestFDEP_TokenizeStreamFunctional1) {
-  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
-  bool                      Ran  = false;
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
   FDEP_Statement           *StatementList;
   size_t                    StatementCount;
   const char                Contents[] = "module a&\n"
@@ -47,9 +50,11 @@ TEST_F(FDEP_Standard,
     Ran            = true;
     StatementCount = FDEP_TokenizeStream(
         &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
-        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(2 == StatementCount);
   ASSERT(0 == strcmp(StatementList[0].TokenList[1], "aa"));
@@ -59,8 +64,9 @@ TEST_F(FDEP_Standard,
 
 TEST_F(FDEP_Standard,
        TestFDEP_TokenizeStreamFunctional2) {
-  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
-  bool                      Ran  = false;
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
   FDEP_Statement           *StatementList;
   size_t                    StatementCount;
   const char                Contents[] = "module a&\n"
@@ -77,9 +83,11 @@ TEST_F(FDEP_Standard,
     Ran            = true;
     StatementCount = FDEP_TokenizeStream(
         &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
-        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
   ASSERT(0 == strcmp(StatementList[7].TokenList[2], "b"));
@@ -89,8 +97,9 @@ TEST_F(FDEP_Standard,
 
 TEST_F(FDEP_Standard,
        TestFDEP_TokenizeStreamFunctional3) {
-  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
-  bool                      Ran  = false;
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
   FDEP_Statement           *StatementList;
   size_t                    StatementCount;
   const char                Contents[] =
@@ -108,9 +117,11 @@ TEST_F(FDEP_Standard,
     Ran            = true;
     StatementCount = FDEP_TokenizeStream(
         &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
-        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
   ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bb"));
@@ -120,8 +131,9 @@ TEST_F(FDEP_Standard,
 
 TEST_F(FDEP_Standard,
        TestFDEP_TokenizeStreamFunctional4) {
-  FDEP_StandardContextData *Data = (FDEP_StandardContextData *)ContextData;
-  bool                      Ran  = false;
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
   FDEP_Statement           *StatementList;
   size_t                    StatementCount;
   const char                Contents[] =
@@ -140,9 +152,11 @@ TEST_F(FDEP_Standard,
     Ran            = true;
     StatementCount = FDEP_TokenizeStream(
         &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
-        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess);
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
   ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bbb"));

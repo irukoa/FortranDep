@@ -2,6 +2,7 @@
 #define _API_H
 
 #include "tools/FunctionMacros.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -1,8 +1,8 @@
 #ifndef _LEXER_H
 #define _LEXER_H
 
+#include "src/API/API.h"
 #include "src/TOK/Tokenizer.h"
-#include <stdbool.h>
 
 typedef enum {
   FDEP_TK_MODULE,

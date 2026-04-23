@@ -7,7 +7,8 @@
 TEST_F(FDEP_Standard,
        TestFDEP_StatementContainsDefinedModuleNominal) {
   (void)ContextData;
-  bool Ran = false;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
   // String simulates a Fortran statement, so no ";" "&" will appear in the
   // String.
   const char     String[] = "module a";
@@ -17,9 +18,10 @@ TEST_F(FDEP_Standard,
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran                  = true;
     Statement.TokenCount = FDEP_Tokenize(String, FDEP_FORTRAN_DELIMITERS,
-                                         &(Statement.TokenList), NULL);
+                                         &(Statement.TokenList), &ErrorCode);
   }
   ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
   IsModule =

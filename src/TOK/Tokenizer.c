@@ -1,9 +1,10 @@
 #include "src/TOK/Tokenizer.h"
-#include <stdbool.h>
 #include <string.h>
 
-void FDEP_FreeTokenList(char      ***TokenList,
-                        const size_t TokenCount) {
+INTDEF(void,
+       FDEP_FreeTokenList,
+       char      ***TokenList,
+       const size_t TokenCount) {
   size_t i;
 
   if (!TokenList || !(*TokenList)) {
@@ -16,19 +17,20 @@ void FDEP_FreeTokenList(char      ***TokenList,
   *TokenList = NULL;
 }
 
-size_t FDEP_Tokenize(const char *const String,
-                     const char *const Delimiters,
-                     char           ***TokenList,
-                     FDEP_ErrorCode   *FailByCaller) {
-  FDEP_ErrorCode ErrorCode = NO_ERROR;
-
-  char  *StringCpy;
-  char  *Token;
-  size_t TokenCount;
-  void  *TmpTokenList;
-  char  *SaveStrCpy;
+INTDEF(size_t,
+       FDEP_Tokenize,
+       const char *const String,
+       const char *const Delimiters,
+       char           ***TokenList,
+       FDEP_ErrorCode   *FailByCaller) {
+  FDEP_ErrorCode ErrorCode  = NO_ERROR;
+  char          *StringCpy  = NULL;
+  char          *Token      = NULL;
+  size_t         TokenCount = 0;
+  void          *TmpTokenList;
+  char          *SaveStrCpy;
   // Variables for memory cleanup on failure.
-  size_t AllocatedTokenCount;
+  size_t AllocatedTokenCount = 0;
   size_t i;
 
   if (!String || !Delimiters || !TokenList) {
@@ -36,7 +38,6 @@ size_t FDEP_Tokenize(const char *const String,
     goto error_handler;
   }
   // Allocate space and copy string.
-  StringCpy = NULL;
   StringCpy = (char *)FDEP_ApiMalloc(sizeof(char) * (strlen(String) + 1));
   if (!StringCpy) {
     ErrorCode = ERROR_ALLOC;
@@ -44,11 +45,8 @@ size_t FDEP_Tokenize(const char *const String,
   }
   (void)strcpy(StringCpy, String);
   // Initialization.
-  *TokenList          = NULL;
-  Token               = NULL;
-  TokenCount          = 0;
-  Token               = strtok_r(StringCpy, Delimiters, &SaveStrCpy);
-  AllocatedTokenCount = 0;
+  *TokenList = NULL;
+  Token      = strtok_r(StringCpy, Delimiters, &SaveStrCpy);
   // Main loop.
   while (Token) {
     TokenCount++;
@@ -96,7 +94,7 @@ error_handler:
 static void FDEP_FreeStatement(FDEP_Statement *Statement) {
   size_t i;
 
-  if (!Statement || !(Statement->TokenList)) {
+  if (!Statement) {
     return;
   }
   if (Statement->TokenList) {
@@ -113,8 +111,9 @@ static void FDEP_FreePartialStatement(FDEP_Statement *Statement,
                                       const size_t    BuiltTokens) {
   size_t i;
 
-  if (!Statement || !(Statement->TokenList))
+  if (!Statement) {
     return;
+  }
   for (i = 0; i < BuiltTokens; i++) {
     free(Statement->TokenList[i]);
   }
@@ -124,11 +123,12 @@ static void FDEP_FreePartialStatement(FDEP_Statement *Statement,
 }
 
 void FDEP_FreeStatementList(FDEP_Statement **StatementList,
-                            size_t           StatementCount) {
+                            const size_t     StatementCount) {
   size_t i;
 
-  if (!StatementList || !(*StatementList))
+  if (!StatementList || !(*StatementList)) {
     return;
+  }
   for (i = 0; i < StatementCount; i++) {
     FDEP_FreeStatement(&(*StatementList)[i]);
   }
@@ -141,51 +141,41 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
                            const char        ContinuationMarker,
                            const char        SeparatorMarker,
                            FILE             *Stream,
-                           void (*StringPreprocess)(char *String)) {
+                           void (*StringPreprocess)(char *String),
+                           FDEP_ErrorCode *FailByCaller) {
   FDEP_ErrorCode ErrorCode = NO_ERROR;
 
   // Statement proccessing.
-  char  *String;
-  size_t Cap;
+  char  *String = NULL;
+  size_t Cap    = 0;
   char  *ContPos;
-  char  *NextLine;
-  size_t NCap;
+  char  *NextLine = NULL;
+  size_t NCap     = 0;
   void  *TmpString;
   char  *Substring;
   char  *SaveSubstring;
-  char   SeparatorMarkerString[2];
+  char   SeparatorMarkerString[2] = {SeparatorMarker, '\0'};
   size_t PositionIndex;
-  bool   PrecededByBlanks = true;
+  bool   PrecededByBlanks;
   // Statement tokenizing.
   void           *TmpStatementList;
   char          **TokenBuffer;
   size_t          FoundTokens;
   FDEP_Statement *CurrentStatement;
-  size_t          StatementCount;
+  size_t          StatementCount = 0;
   size_t          i;
   // Variables for memory cleanup on failure.
-  size_t AllocatedStatementCount;
-  size_t AllocatedTokenCount;
-  bool   HasCurrentStatement;
+  size_t AllocatedStatementCount = 0;
+  size_t AllocatedTokenCount     = 0;
+  bool   HasCurrentStatement     = false;
 
   if (!StatementList || !Delimiters || !Stream) {
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
   // Initialization.
-  StatementCount           = 0;
-  *StatementList           = NULL;
-  AllocatedStatementCount  = 0;
-  AllocatedTokenCount      = 0;
-  HasCurrentStatement      = false;
-  SeparatorMarkerString[0] = SeparatorMarker;
-  SeparatorMarkerString[1] = '\0';
+  *StatementList = NULL;
   // Main loop.
-  String    = NULL;
-  Cap       = 0;
-  NextLine  = NULL;
-  NCap      = 0;
-  Substring = NULL;
   while ((getline(&String, &Cap, Stream)) != -1) {
     if (StringPreprocess) {
       StringPreprocess(String);
@@ -238,6 +228,7 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
       (void)strcat(String, NextLine);
     }
     // Splits String along statement separator markers.
+    Substring = NULL;
     Substring = strtok_r(String, SeparatorMarkerString, &SaveSubstring);
     while (Substring) {
       // Seach for tokens in statement. Store in TokenBuffer.
@@ -320,6 +311,10 @@ error_handler:
   }
   // Free completed statements.
   FDEP_FreeStatementList(StatementList, AllocatedStatementCount);
+  if (FailByCaller) {
+    *FailByCaller = ErrorCode;
+    return 0;
+  }
   FDEP_API_ERROR(ErrorCode);
   return 0;
 }
