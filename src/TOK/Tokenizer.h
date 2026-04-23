@@ -16,7 +16,7 @@ INTDEC(size_t,
        FDEP_ErrorCode   *FailByCaller);
 
 typedef struct _FDEP_Statement {
-  char **TokenList;  // Array of characters.
+  char **TokenList;  // Array of strings.
   size_t TokenCount; // Array capacity.
 } FDEP_Statement;
 

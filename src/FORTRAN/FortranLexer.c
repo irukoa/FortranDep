@@ -56,11 +56,11 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
           return false;
         }
       }
+      // If we arrived here, the module name follows the module token.
+      *IndexModule = i;
+      *IndexName   = i + 1;
+      return true;
     }
-    // If we arrived here, the module name follows the module token.
-    *IndexModule = i;
-    *IndexName   = i + 1;
-    return true;
   }
   return false;
 }
@@ -85,11 +85,11 @@ bool FDEP_StatementContainsDefinedSubModule(
           return false;
         }
       }
+      // If we arrived here, the submodule name is the last token.
+      *IndexSubModule = i;
+      *IndexName      = Statement->TokenCount - 1;
+      return true;
     }
-    // If we arrived here, the submodule name is the last token.
-    *IndexSubModule = i;
-    *IndexName      = Statement->TokenCount - 1;
-    return true;
   }
   return false;
 }
