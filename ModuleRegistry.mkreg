@@ -1,3 +1,4 @@
 -include src/API/Reg.mk
 -include src/TOK/Reg.mk
 -include src/FORTRAN/Reg.mk
+-include src/DEP/Reg.mk
