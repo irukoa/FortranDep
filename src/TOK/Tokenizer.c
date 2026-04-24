@@ -91,52 +91,56 @@ error_handler:
   return 0;
 }
 
-static void FDEP_FreeStatement(FDEP_Statement *Statement) {
+static void FDEP_FreeStatement(FDEP_Statement **Statement) {
   size_t i;
 
-  if (!Statement) {
+  if (!Statement || !(*Statement)) {
     return;
   }
-  if (Statement->TokenList) {
-    for (i = 0; i < Statement->TokenCount; i++) {
-      free(Statement->TokenList[i]);
+  if ((*Statement)->TokenList) {
+    for (i = 0; i < (*Statement)->TokenCount; i++) {
+      free((*Statement)->TokenList[i]);
     }
-    free(Statement->TokenList);
+    free((*Statement)->TokenList);
   }
-  Statement->TokenList  = NULL;
-  Statement->TokenCount = 0;
+  (*Statement)->TokenList  = NULL;
+  (*Statement)->TokenCount = 0;
+  free(*Statement);
+  *Statement = NULL;
 }
 
-static void FDEP_FreePartialStatement(FDEP_Statement *Statement,
-                                      const size_t    BuiltTokens) {
+static void FDEP_FreePartialStatement(FDEP_Statement **Statement,
+                                      const size_t     BuiltTokens) {
   size_t i;
 
-  if (!Statement) {
+  if (!Statement || !(*Statement)) {
     return;
   }
   for (i = 0; i < BuiltTokens; i++) {
-    free(Statement->TokenList[i]);
+    free((*Statement)->TokenList[i]);
   }
-  free(Statement->TokenList);
-  Statement->TokenList  = NULL;
-  Statement->TokenCount = 0;
+  free((*Statement)->TokenList);
+  (*Statement)->TokenList  = NULL;
+  (*Statement)->TokenCount = 0;
+  free(*Statement);
+  *Statement = NULL;
 }
 
-void FDEP_FreeStatementList(FDEP_Statement **StatementList,
-                            const size_t     StatementCount) {
+void FDEP_FreeStatementList(FDEP_Statement ***StatementList,
+                            const size_t      StatementCount) {
   size_t i;
 
   if (!StatementList || !(*StatementList)) {
     return;
   }
   for (i = 0; i < StatementCount; i++) {
-    FDEP_FreeStatement(&(*StatementList)[i]);
+    FDEP_FreeStatement(&((*StatementList)[i]));
   }
   free(*StatementList);
   *StatementList = NULL;
 }
 
-size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
+size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
                            const char *const Delimiters,
                            const char        ContinuationMarker,
                            const char        SeparatorMarker,
@@ -243,22 +247,30 @@ size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
         StatementCount++;
         // Expand *StatementList.
         TmpStatementList = NULL;
-        TmpStatementList = (FDEP_Statement *)FDEP_ApiRealloc(
-            (void *)(*StatementList), sizeof(FDEP_Statement) * StatementCount);
+        TmpStatementList =
+            FDEP_ApiRealloc((void *)(*StatementList),
+                            sizeof(FDEP_Statement *) * StatementCount);
         if (!TmpStatementList) {
           ErrorCode = ERROR_ALLOC;
           goto error_handler;
         }
-        *StatementList = TmpStatementList;
+        *StatementList = (FDEP_Statement **)TmpStatementList;
+        // Allocate memory for current statement.
+        (*StatementList)[StatementCount - 1] = NULL;
+        (*StatementList)[StatementCount - 1] =
+            (FDEP_Statement *)FDEP_ApiMalloc(sizeof(FDEP_Statement));
+        if (!((*StatementList)[StatementCount - 1])) {
+          ErrorCode = ERROR_ALLOC;
+          goto error_handler;
+        }
         // Cast CurrentStatement to *StatementList element.
         CurrentStatement =
-            (FDEP_Statement *)(&(*StatementList)[StatementCount - 1]);
+            (FDEP_Statement *)((*StatementList)[StatementCount - 1]);
         CurrentStatement->TokenList  = NULL;
         CurrentStatement->TokenCount = 0;
         HasCurrentStatement          = true;
         AllocatedTokenCount          = 0;
-        // Allocate CurrentStatement.
-        CurrentStatement->TokenList = NULL;
+        // Allocate CurrentStatement->TokenList.
         CurrentStatement->TokenList =
             (char **)FDEP_ApiMalloc(sizeof(char *) * FoundTokens);
         if (!(CurrentStatement->TokenList)) {

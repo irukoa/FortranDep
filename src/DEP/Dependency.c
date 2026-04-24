@@ -49,20 +49,21 @@ error_handler:
   return NULL;
 }
 
-void FDEP_FreeTarget(FDEP_Target *Target) {
+void FDEP_FreeTarget(FDEP_Target **Target) {
   size_t i;
 
-  if (!(Target)) {
+  if (!Target || !(*Target)) {
     return;
   }
-  free(Target->Name);
-  Target->Name = NULL;
-  for (i = 0; i < Target->DependencyCount; i++) {
-    FDEP_FreeDependency(&(Target->DependencyList[i]));
+  free((*Target)->Name);
+  (*Target)->Name = NULL;
+  for (i = 0; i < (*Target)->DependencyCount; i++) {
+    FDEP_FreeDependency(&((*Target)->DependencyList[i]));
   }
-  free(Target->DependencyList);
-  Target->DependencyList = NULL;
-  free(Target);
+  free((*Target)->DependencyList);
+  (*Target)->DependencyList = NULL;
+  free((*Target));
+  (*Target) = NULL;
 }
 
 FDEP_Target *FDEP_NewTarget(const char *const  Name,
@@ -140,11 +141,25 @@ bool FDEP_AddDependencyToTarget(const char *const  Name,
   }
   return true;
 error_handler:
-  FDEP_FreeTarget(*Target);
+  FDEP_FreeTarget(Target);
   if (FailByCaller) {
     *FailByCaller = ErrorCode;
     return false;
   }
   FDEP_API_ERROR(ErrorCode);
   return false;
+}
+
+void FDEP_FreeTargetList(FDEP_Target ***TargetList,
+                         const size_t   TargetCount) {
+  size_t i;
+
+  if (!TargetList || !(*TargetList)) {
+    return;
+  }
+  for (i = 0; i < TargetCount; i++) {
+    FDEP_FreeTarget(&((*TargetList)[i]));
+  }
+  free(*TargetList);
+  *TargetList = NULL;
 }

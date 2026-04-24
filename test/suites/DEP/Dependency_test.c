@@ -60,7 +60,7 @@ TEST_F(FDEP_Standard,
   Ran = false;
   ASSERT(ErrorCode == NO_ERROR);
   ASSERT(2 == Target->DependencyCount);
-  FDEP_FreeTarget(Target);
+  FDEP_FreeTarget(&Target);
 }
 
 TEST_SUITE(DependencySuite,

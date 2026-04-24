@@ -37,7 +37,7 @@ TEST_F(FDEP_Standard,
   FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
   bool                      Ran       = false;
   FDEP_ErrorCode            ErrorCode = NO_ERROR;
-  FDEP_Statement           *StatementList;
+  FDEP_Statement          **StatementList;
   size_t                    StatementCount;
   const char                Contents[] = "module a&\n"
                                          "  &&\n"
@@ -57,7 +57,7 @@ TEST_F(FDEP_Standard,
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(2 == StatementCount);
-  ASSERT(0 == strcmp(StatementList[0].TokenList[1], "aa"));
+  ASSERT(0 == strcmp(StatementList[0]->TokenList[1], "aa"));
   FDEP_FreeStatementList(&StatementList, StatementCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
@@ -67,7 +67,7 @@ TEST_F(FDEP_Standard,
   FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
   bool                      Ran       = false;
   FDEP_ErrorCode            ErrorCode = NO_ERROR;
-  FDEP_Statement           *StatementList;
+  FDEP_Statement          **StatementList;
   size_t                    StatementCount;
   const char                Contents[] = "module a&\n"
                                          "  &&\n"
@@ -90,7 +90,7 @@ TEST_F(FDEP_Standard,
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
-  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "b"));
+  ASSERT(0 == strcmp(StatementList[7]->TokenList[2], "b"));
   FDEP_FreeStatementList(&StatementList, StatementCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
@@ -100,7 +100,7 @@ TEST_F(FDEP_Standard,
   FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
   bool                      Ran       = false;
   FDEP_ErrorCode            ErrorCode = NO_ERROR;
-  FDEP_Statement           *StatementList;
+  FDEP_Statement          **StatementList;
   size_t                    StatementCount;
   const char                Contents[] =
       "module a&\n"
@@ -124,7 +124,7 @@ TEST_F(FDEP_Standard,
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
-  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bb"));
+  ASSERT(0 == strcmp(StatementList[7]->TokenList[2], "bb"));
   FDEP_FreeStatementList(&StatementList, StatementCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
@@ -134,7 +134,7 @@ TEST_F(FDEP_Standard,
   FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
   bool                      Ran       = false;
   FDEP_ErrorCode            ErrorCode = NO_ERROR;
-  FDEP_Statement           *StatementList;
+  FDEP_Statement          **StatementList;
   size_t                    StatementCount;
   const char                Contents[] =
       "module a&\n"
@@ -159,7 +159,7 @@ TEST_F(FDEP_Standard,
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(8 == StatementCount);
-  ASSERT(0 == strcmp(StatementList[7].TokenList[2], "bbb"));
+  ASSERT(0 == strcmp(StatementList[7]->TokenList[2], "bbb"));
   FDEP_FreeStatementList(&StatementList, StatementCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }

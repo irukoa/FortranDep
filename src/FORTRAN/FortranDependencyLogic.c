@@ -1,19 +1,5 @@
 #include "src/FORTRAN/FortranDependencyLogic.h"
 
-void FDEP_FreeTargetList(FDEP_Target ***TargetList,
-                         const size_t   TargetCount) {
-  size_t i;
-
-  if (!TargetList || !(*TargetList)) {
-    return;
-  }
-  for (i = 0; i < TargetCount; i++) {
-    FDEP_FreeTarget((*TargetList)[i]);
-  }
-  free(*TargetList);
-  *TargetList = NULL;
-}
-
 size_t FDEP_StatementListIntoDependencyTree(
     FDEP_Target                     ***TargetList,
     const FDEP_Statement *const *const StatementList,
@@ -26,7 +12,7 @@ size_t FDEP_StatementListIntoDependencyTree(
   bool           DefinesModule, DefinesSubmodule, UsesModule;
   size_t         IndexKeyword, IndexName;
 
-  if (!TargetList || !(StatementList)) {
+  if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
@@ -55,8 +41,8 @@ size_t FDEP_StatementListIntoDependencyTree(
   }
   for (i = 0; i < StatementCount; i++) {
     DefinesModule = FDEP_StatementContainsDefinedModule(
-        &((*StatementList)[i]), &IndexKeyword, &IndexName);
-    if ((DefinesModule) && (IndexName < (*StatementList)[i].TokenCount)) {
+        StatementList[i], &IndexKeyword, &IndexName);
+    if ((DefinesModule) && (IndexName < StatementList[i]->TokenCount)) {
       // New module target.
       TargetCount++;
       TmpTargetList = NULL;
@@ -68,7 +54,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       *TargetList = (FDEP_Target **)TmpTargetList;
       (*TargetList)[TargetCount - 1] =
-          FDEP_NewTarget((*StatementList)[i].TokenList[IndexName],
+          FDEP_NewTarget(StatementList[i]->TokenList[IndexName],
                          (FDEP_ObjType)FDEP_OBJ_MODULE, &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
@@ -81,7 +67,7 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       // The object target depends on the module file.
-      (void)FDEP_AddDependencyToTarget((*StatementList)[i].TokenList[IndexName],
+      (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
                                        (FDEP_ObjType)FDEP_OBJ_MODULE,
                                        &((*TargetList)[0]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
@@ -90,8 +76,8 @@ size_t FDEP_StatementListIntoDependencyTree(
       continue;
     }
     DefinesSubmodule = FDEP_StatementContainsDefinedSubModule(
-        &((*StatementList)[i]), &IndexKeyword, &IndexName);
-    if ((DefinesSubmodule) && (IndexName < (*StatementList)[i].TokenCount) &&
+        StatementList[i], &IndexKeyword, &IndexName);
+    if ((DefinesSubmodule) && (IndexName < StatementList[i]->TokenCount) &&
         (IndexKeyword < IndexName - 1)) {
       // New submodule target.
       TargetCount++;
@@ -104,7 +90,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       *TargetList = (FDEP_Target **)TmpTargetList;
       (*TargetList)[TargetCount - 1] =
-          FDEP_NewTarget((*StatementList)[i].TokenList[IndexName],
+          FDEP_NewTarget(StatementList[i]->TokenList[IndexName],
                          (FDEP_ObjType)FDEP_OBJ_SUBMODULE, &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
@@ -130,18 +116,17 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       continue;
     }
-    UsesModule = FDEP_StatementContainsUsedModule(&((*StatementList)[i]),
+    UsesModule = FDEP_StatementContainsUsedModule(StatementList[i],
                                                   &IndexKeyword, &IndexName);
-    if ((UsesModule) && (IndexName < (*StatementList)[i].TokenCount)) {
+    if ((UsesModule) && (IndexName < StatementList[i]->TokenCount)) {
       // Current owner and object target get a module dependency.
-      (void)FDEP_AddDependencyToTarget((*StatementList)[i].TokenList[IndexName],
-                                       (FDEP_ObjType)FDEP_OBJ_MODULE,
-                                       &((*TargetList)[TargetCount - 1]),
-                                       &ErrorCode);
+      (void)FDEP_AddDependencyToTarget(
+          StatementList[i]->TokenList[IndexName], (FDEP_ObjType)FDEP_OBJ_MODULE,
+          &((*TargetList)[TargetCount - 1]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
-      (void)FDEP_AddDependencyToTarget((*StatementList)[i].TokenList[IndexName],
+      (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
                                        (FDEP_ObjType)FDEP_OBJ_MODULE,
                                        &((*TargetList)[0]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {

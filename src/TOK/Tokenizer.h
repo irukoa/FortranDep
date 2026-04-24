@@ -5,14 +5,14 @@
 
 INTDEC(void,
        FDEP_FreeTokenList,
-       char      ***TokenList,
+       char      ***TokenList, // Reference to array of strings.
        const size_t TokenCount);
 
 INTDEC(size_t,
        FDEP_Tokenize,
        const char *const String,
        const char *const Delimiters,
-       char           ***TokenList,
+       char           ***TokenList, // Reference to array of strings.
        FDEP_ErrorCode   *FailByCaller);
 
 typedef struct _FDEP_Statement {
@@ -22,8 +22,10 @@ typedef struct _FDEP_Statement {
 
 /* Frees a statement list previously allocated by FDEP_TokenizeStream. It's safe
  * to pass StatementCount = 0.*/
-void FDEP_FreeStatementList(FDEP_Statement **StatementList,
-                            const size_t     StatementCount);
+void FDEP_FreeStatementList(
+    FDEP_Statement **
+        *StatementList, // Reference to array of FDEP_Statement pointers.
+    const size_t StatementCount);
 
 /* Transforms the input from Stream into a statement list according to
  Delimiters. Any string which ends with a continuation marker is concatenated
@@ -37,12 +39,14 @@ void FDEP_FreeStatementList(FDEP_Statement **StatementList,
   otherwise, writes the error code in the value of FailByCaller and returns 0.
   Any memory allocated by the function is freed.
  */
-size_t FDEP_TokenizeStream(FDEP_Statement  **StatementList,
-                           const char *const Delimiters,
-                           const char        ContinuationMarker,
-                           const char        SeparatorMarker,
-                           FILE             *Stream,
-                           void (*StringPreprocess)(char *String),
-                           FDEP_ErrorCode *FailByCaller);
+size_t FDEP_TokenizeStream(
+    FDEP_Statement **
+        *StatementList, // Reference to array of FDEP_Statement pointers.
+    const char *const Delimiters,
+    const char        ContinuationMarker,
+    const char        SeparatorMarker,
+    FILE             *Stream,
+    void (*StringPreprocess)(char *String),
+    FDEP_ErrorCode *FailByCaller);
 
 #endif

@@ -12,9 +12,10 @@ typedef struct _FDEP_Dependency {
 
 INTDEC(void,
        FDEP_FreeDependency,
-       FDEP_Dependency **Dependency);
+       FDEP_Dependency **Dependency); // Reference to pointer of allocated
+                                      // FDEP_Dependency object.
 
-INTDEC(FDEP_Dependency *,
+INTDEC(FDEP_Dependency *, // Pointer to allocated FDEP_Dependency object.
        FDEP_NewDependency,
        const char *const  Name,
        const FDEP_ObjType Type,
@@ -24,11 +25,12 @@ typedef struct _FDEP_Target {
   char             *Name;
   FDEP_ObjType      Type;
   size_t            DependencyCount;
-  FDEP_Dependency **DependencyList; // Array of dependency pointers.
+  FDEP_Dependency **DependencyList; // Array of FDEP_Dependency pointers.
 } FDEP_Target;
 
 /* Frees a target previously allocated by FDEP_NewTarget. */
-void FDEP_FreeTarget(FDEP_Target *Target);
+void FDEP_FreeTarget(FDEP_Target **Target); // Reference to pointer of allocated
+                                            // FDEP_Target object.
 
 /* Returns an allocated pointer to a target type without dependencies
  (DependencyCount = 0, DependencyList = NULL).
@@ -37,9 +39,10 @@ void FDEP_FreeTarget(FDEP_Target *Target);
  otherwise, writes the error code in the value of FailByCaller and returns NULL.
  Any memory allocated by the function is freed.
 */
-FDEP_Target *FDEP_NewTarget(const char *const  Name,
-                            const FDEP_ObjType Type,
-                            FDEP_ErrorCode    *FailByCaller);
+FDEP_Target *FDEP_NewTarget( // Pointer to allocated FDEP_Target object.
+    const char *const  Name,
+    const FDEP_ObjType Type,
+    FDEP_ErrorCode    *FailByCaller);
 
 /* Adds a new dependency to a target allocated by FDEP_NewTarget. If the
  dependency was added, returns true and false otherwise.
@@ -49,9 +52,16 @@ FDEP_Target *FDEP_NewTarget(const char *const  Name,
  false.
  Any memory allocated by the function is freed.
 */
-bool FDEP_AddDependencyToTarget(const char *const  Name,
-                                const FDEP_ObjType Type,
-                                FDEP_Target      **Target,
-                                FDEP_ErrorCode    *FailByCaller);
+bool FDEP_AddDependencyToTarget(
+    const char *const  Name,
+    const FDEP_ObjType Type,
+    FDEP_Target *
+        *Target, // Reference to pointer of allocated FDEP_Target object.
+    FDEP_ErrorCode *FailByCaller);
+
+void FDEP_FreeTargetList(
+    FDEP_Target ***TargetList, // Reference to array of pointers to allocated
+                               // FDEP_Target objects.
+    const size_t TargetCount);
 
 #endif

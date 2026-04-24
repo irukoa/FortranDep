@@ -25,9 +25,11 @@ FDEP_FortranToken FDEP_GetToken(const char *const String);
  * IndexModule with the index that contains the keyword `module`. Similarly,
  * replaces the value of IndexName by the statement token index that contains
  * the name of the module.*/
-bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
-                                         size_t *IndexModule,
-                                         size_t *IndexName);
+bool FDEP_StatementContainsDefinedModule(
+    const FDEP_Statement
+        *const Statement, // Reference to allocated FDEP_Statement object.
+    size_t    *IndexModule,
+    size_t    *IndexName);
 
 /* Given Statement, returns true if it contains the definition of a submodule
  * and false otherwise. If a submodule is defined, replaces the value of
@@ -35,17 +37,20 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
  * Similarly, replaces the value of IndexName by the statement token index that
  * contains the name of the submodule.*/
 bool FDEP_StatementContainsDefinedSubModule(
-    const FDEP_Statement *const Statement,
-    size_t                     *IndexSubModule,
-    size_t                     *IndexName);
+    const FDEP_Statement
+        *const Statement, // Reference to allocated FDEP_Statement object.
+    size_t    *IndexSubModule,
+    size_t    *IndexName);
 
 /* Given Statement, returns true if it contains a non-intrinsic used module
  * and false otherwise. If a module is used, replaces the value of
  * IndexUse with the index that contains the keyword `use`. Similarly,
  * replaces the value of IndexName by the statement token index that contains
  * the name of the used module.*/
-bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
-                                      size_t                     *IndexUse,
-                                      size_t                     *IndexName);
+bool FDEP_StatementContainsUsedModule(
+    const FDEP_Statement
+        *const Statement, // Reference to allocated FDEP_Statement object.
+    size_t    *IndexUse,
+    size_t    *IndexName);
 
 #endif

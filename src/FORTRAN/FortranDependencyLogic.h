@@ -13,13 +13,12 @@ typedef enum {
   FDEP_OBJ_SUBMODULE
 } FDEP_FortranObjType;
 
-void FDEP_FreeTargetList(FDEP_Target ***TargetList,
-                         const size_t   TargetCount);
-
 size_t FDEP_StatementListIntoDependencyTree(
-    FDEP_Target ***TargetList, // Reference to array of target pointers.
-    const FDEP_Statement *const *const StatementList,
-    const size_t                       StatementCount,
-    FDEP_ErrorCode                    *FailByCaller);
+    FDEP_Target ***TargetList, // Reference to array of pointers to allocated
+                               // FDEP_Target objects.
+    const FDEP_Statement *const
+        *const   StatementList, // Array of allocated FDEP_Statement pointers.
+    const size_t StatementCount,
+    FDEP_ErrorCode *FailByCaller);
 
 #endif
