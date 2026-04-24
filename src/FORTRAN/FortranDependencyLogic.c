@@ -1,5 +1,4 @@
 #include "src/FORTRAN/FortranDependencyLogic.h"
-#include <string.h>
 
 const char FDEP_ObjectName[]      = "#OBJECT#";
 const char FDEP_SourceName[]      = "#SOURCEFILE#";

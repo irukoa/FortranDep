@@ -1,5 +1,4 @@
 #include "src/TOK/Tokenizer.h"
-#include <string.h>
 
 INTDEF(void,
        FDEP_FreeTokenList,

@@ -1,6 +1,8 @@
 #ifndef _FORTRAN_SYNTAX_H
 #define _FORTRAN_SYNTAX_H
 
+#include "src/API/API.h"
+
 #define FDEP_FORTRAN_DELIMITERS   " \t\n(),:"
 #define FDEP_FORTRAN_CONTINUATION '&'
 #define FDEP_FORTRAN_SEPARATOR    ';'

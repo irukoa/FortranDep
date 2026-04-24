@@ -1,5 +1,4 @@
 #include "src/FORTRAN/FortranLexer.h"
-#include <string.h>
 
 FDEP_FortranToken FDEP_GetToken(const char *const String) {
   FDEP_FortranToken Token;

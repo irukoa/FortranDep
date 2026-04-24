@@ -1,5 +1,4 @@
 #include "src/DEP/Dependency.h"
-#include <string.h>
 
 INTDEF(void,
        FDEP_FreeDependency,
