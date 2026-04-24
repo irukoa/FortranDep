@@ -16,10 +16,9 @@ int main(const int         argc,
          const char *const argv[]) {
   FDEP_Statement **StatementList = NULL;
   size_t           StatementCount;
+  FDEP_Target    **TargetList = NULL;
+  size_t           TargetCount;
   size_t           i, j, Counter;
-
-  FDEP_Target **TargetList = NULL;
-  size_t        TargetCount;
 
   (void)argc;
   (void)argv;
@@ -53,7 +52,7 @@ int main(const int         argc,
     }
   }
 
-  FDEP_FreeStatementList(&StatementList, StatementCount);
   FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
   return EXIT_SUCCESS;
 }
