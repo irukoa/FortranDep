@@ -49,9 +49,6 @@ int main(const int         argc,
                               FDEP_ModuleSuffix);
         break;
       case FDEP_OBJ_SUBMODULE:
-        // TODO: Differentiate between gfortran and ifort in submodule
-        // dependency printing: if dependency does NOT contain '@', gfortran
-        // expects *.smod and ifort *.mod.
         (void)FDEP_ApiFprintf(stdout, "  %s.%s",
                               TargetList[i]->DependencyList[j]->Name,
                               FDEP_SubModuleSuffix);

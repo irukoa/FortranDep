@@ -26,9 +26,9 @@ end module a
 ```
 produces:
 ```
-b.mod: file.f90
+file.o: file.f90 b.mod a.mod c.mod d.inc
+b.mod: file.f90 d.inc
 a.mod: file.f90 b.mod c.mod d.inc
-file.o: b.mod a.mod
 ```
 
 ## Options
@@ -45,15 +45,19 @@ file.o: b.mod a.mod
 
 - We only guarantee correct results for valid Fortran.
 
-- CPP `#include` directives.
+- CPP `#include` directives. Ownership model: all targets in the file depend on all included files.
 
 - Recursive include resolution.
+
+- GNU Fortran style submodule dependencies. That is, `submodule (a) b` will depend on `a.smod`.
 
 ### Not supported
 
 - Fortran `include` statements (F77-style).
 
 - Fixed form Fortran.
+
+- Intel Fortran style submodule dependencies. That is, `submodule (a) b` will not depend on `a.mod`.
 
 ## Installation
 
