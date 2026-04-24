@@ -1,4 +1,5 @@
 #include "src/FORTRAN/FortranDependencyLogic.h"
+#include <string.h>
 
 const char FDEP_ObjectName[]      = "#OBJECT#";
 const char FDEP_SourceName[]      = "#SOURCEFILE#";
@@ -16,6 +17,8 @@ size_t FDEP_StatementListIntoDependencyTree(
   size_t         i;
   bool           DefinesModule, DefinesSubmodule, UsesModule;
   size_t         IndexKeyword, IndexName;
+  char          *String;
+  size_t         AncestorCount;
 
   if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
@@ -94,12 +97,24 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       *TargetList = (FDEP_Target **)TmpTargetList;
+      String      = NULL;
+      String      = (char *)FDEP_ApiMalloc(
+          sizeof(char) *
+          (strlen(StatementList[i]->TokenList[IndexKeyword + 1]) +
+           strlen(StatementList[i]->TokenList[IndexName]) + 2));
+      if (!String) {
+        ErrorCode = ERROR_ALLOC;
+        goto error_handler;
+      }
+      (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
+      (void)strcat(String, "@");
+      (void)strcat(String, StatementList[i]->TokenList[IndexName]);
       (*TargetList)[TargetCount - 1] =
-          FDEP_NewTarget(StatementList[i]->TokenList[IndexName],
-                         (FDEP_ObjType)FDEP_OBJ_SUBMODULE, &ErrorCode);
+          FDEP_NewTarget(String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE, &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
+      free(String);
       // The submodule target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
           FDEP_SourceName, (FDEP_ObjType)FDEP_OBJ_SOURCE,
@@ -108,14 +123,44 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       // The submodule target depends on the ancestor (sub)module file.
-      (void)FDEP_AddDependencyToTarget(
-          "a@aa.smod", // TODO: correct names (ancestor submodule).
-          (FDEP_ObjType)FDEP_OBJ_SUBMODULE, &((*TargetList)[TargetCount - 1]),
-          &ErrorCode);
-      // The object target depends on the submodule file.
-      (void)FDEP_AddDependencyToTarget(
-          "a@aaa.smod", // TODO: correct names (submodule itself).
-          (FDEP_ObjType)FDEP_OBJ_SUBMODULE, &((*TargetList)[0]), &ErrorCode);
+      String        = NULL;
+      AncestorCount = IndexName - IndexKeyword - 1;
+      if (AncestorCount > 1) {
+        String = (char *)FDEP_ApiMalloc(
+            sizeof(char) *
+            (strlen(StatementList[i]->TokenList[IndexKeyword + 1]) +
+             strlen(StatementList[i]->TokenList[IndexName - 1]) + 2));
+        if (!String) {
+          ErrorCode = ERROR_ALLOC;
+          goto error_handler;
+        }
+        (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
+        (void)strcat(String, "@");
+        (void)strcat(String, StatementList[i]->TokenList[IndexName - 1]);
+      } else {
+        String = (char *)FDEP_ApiMalloc(
+            sizeof(char) *
+            (strlen(StatementList[i]->TokenList[IndexKeyword + 1]) + 1));
+        if (!String) {
+          ErrorCode = ERROR_ALLOC;
+          goto error_handler;
+        }
+        (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
+      }
+      (void)FDEP_AddDependencyToTarget(String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
+                                       &((*TargetList)[TargetCount - 1]),
+                                       &ErrorCode);
+      // The object target depends on the ancestor (sub)module file.
+      (void)FDEP_AddDependencyToTarget(String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
+                                       &((*TargetList)[0]), &ErrorCode);
+      if (ErrorCode != NO_ERROR) {
+        goto error_handler;
+      }
+      free(String);
+      // The object target depends on the submodule file itself.
+      (void)FDEP_AddDependencyToTarget((*TargetList)[TargetCount - 1]->Name,
+                                       (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
+                                       &((*TargetList)[0]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
