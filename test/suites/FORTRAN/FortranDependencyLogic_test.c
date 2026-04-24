@@ -43,10 +43,10 @@ TEST_F(FDEP_Standard,
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
   ASSERT(TargetCount == 2);
-  ASSERT(0 == strcmp(TargetList[0]->Name, "#OBJECT#"));
+  ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_ObjectName));
   ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
   ASSERT(TargetList[0]->DependencyCount == 3);
-  ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, "#SOURCEFILE#"));
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SourceName));
   ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[1]->Name, "a"));
   ASSERT(TargetList[0]->DependencyList[1]->Type == FDEP_OBJ_MODULE);
@@ -55,7 +55,7 @@ TEST_F(FDEP_Standard,
   ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
   ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
   ASSERT(TargetList[1]->DependencyCount == 2);
-  ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, "#SOURCEFILE#"));
+  ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, FDEP_SourceName));
   ASSERT(TargetList[1]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
   ASSERT(0 == strcmp(TargetList[1]->DependencyList[1]->Name, "b"));
   ASSERT(TargetList[1]->DependencyList[1]->Type == FDEP_OBJ_MODULE);

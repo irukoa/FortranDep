@@ -6,6 +6,11 @@
 #include "src/FORTRAN/FortranLexer.h"
 #include "src/TOK/Tokenizer.h"
 
+extern const char FDEP_ObjectName[];
+extern const char FDEP_SourceName[];
+extern const char FDEP_ModuleSuffix[];
+extern const char FDEP_SubModuleSuffix[];
+
 typedef enum {
   FDEP_OBJ_OBJECT,
   FDEP_OBJ_SOURCE,

@@ -3,55 +3,69 @@
 #include "src/FORTRAN/FortranSyntax.h"
 #include "src/TOK/Tokenizer.h"
 
-// TODO: Differentiate between gfortran and ifort in submodule dependency
-// printing: if dependency does NOT contain ':', gfortran expects *.smod and
-// ifort *.mod.
-
-// static const char FDEP_ObjectName[]      = "#OBJECT#";
-// static const char FDEP_SourceName[]      = "#SOURCEFILE#";
-// static const char FDEP_ModuleSuffix[]    = "mod";
-// static const char FDEP_SubModuleSuffix[] = "smod";
-
 int main(const int         argc,
          const char *const argv[]) {
   FDEP_Statement **StatementList = NULL;
   size_t           StatementCount;
   FDEP_Target    **TargetList = NULL;
   size_t           TargetCount;
-  size_t           i, j, Counter;
+  size_t           i, j;
 
   (void)argc;
   (void)argv;
-
   StatementCount = FDEP_TokenizeStream(
       &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
       FDEP_FORTRAN_SEPARATOR, stdin, FDEP_FortranPreprocess, NULL);
-  fprintf(stdout, "-STC: %zu\n", StatementCount);
-  Counter = 0;
-  for (i = 0; i < StatementCount; i++) {
-    fprintf(stdout, "-ST: %zu\n", i + 1);
-    for (j = 0; j < StatementList[i]->TokenCount; j++) {
-      Counter++;
-      fprintf(stdout, "%zu: %zu.%zu: %s\n", Counter, i + 1, j + 1,
-              StatementList[i]->TokenList[j]);
-    }
-  }
-
   TargetCount = FDEP_StatementListIntoDependencyTree(
       &TargetList, (const FDEP_Statement *const *const)StatementList,
       StatementCount, NULL);
-
-  fprintf(stdout, "-TGC: %zu\n", TargetCount);
   for (i = 0; i < TargetCount; i++) {
-    fprintf(stdout, "-TG: %zu: %s (%i)\n", i + 1, TargetList[i]->Name,
-            TargetList[i]->Type);
+    switch (TargetList[i]->Type) {
+    case FDEP_OBJ_OBJECT:
+      (void)FDEP_ApiFprintf(stdout, "%s:", FDEP_ObjectName);
+      break;
+    case FDEP_OBJ_MODULE:
+      (void)FDEP_ApiFprintf(stdout, "%s.%s:", TargetList[i]->Name,
+                            FDEP_ModuleSuffix);
+      break;
+    case FDEP_OBJ_SUBMODULE:
+      (void)FDEP_ApiFprintf(stdout, "%s.%s:", TargetList[i]->Name,
+                            FDEP_SubModuleSuffix);
+      break;
+    default:
+      continue;
+    }
+    if (TargetList[i]->DependencyCount == 0) {
+      (void)FDEP_ApiFprintf(stdout, "\n");
+    }
     for (j = 0; j < TargetList[i]->DependencyCount; j++) {
-      fprintf(stdout, "%zu.%zu: %s (%i)\n", i + 1, j + 1,
-              TargetList[i]->DependencyList[j]->Name,
-              TargetList[i]->DependencyList[j]->Type);
+      switch (TargetList[i]->DependencyList[j]->Type) {
+      case FDEP_OBJ_SOURCE:
+        (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SourceName);
+        break;
+      case FDEP_OBJ_MODULE:
+        (void)FDEP_ApiFprintf(stdout, "  %s.%s",
+                              TargetList[i]->DependencyList[j]->Name,
+                              FDEP_ModuleSuffix);
+        break;
+      case FDEP_OBJ_SUBMODULE:
+        // TODO: Differentiate between gfortran and ifort in submodule
+        // dependency printing: if dependency does NOT contain ':', gfortran
+        // expects *.smod and ifort *.mod.
+        (void)FDEP_ApiFprintf(stdout, "  %s.%s",
+                              TargetList[i]->DependencyList[j]->Name,
+                              FDEP_SubModuleSuffix);
+        break;
+      default:
+        continue;
+      }
+      if (j != TargetList[i]->DependencyCount - 1) {
+        (void)FDEP_ApiFprintf(stdout, "  \\\n");
+      } else {
+        (void)FDEP_ApiFprintf(stdout, "\n");
+      }
     }
   }
-
   FDEP_FreeTargetList(&TargetList, TargetCount);
   FDEP_FreeStatementList(&StatementList, StatementCount);
   return EXIT_SUCCESS;
