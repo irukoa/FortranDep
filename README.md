@@ -26,9 +26,17 @@ end module a
 ```
 produces:
 ```
-file.o: file.f90 b.mod a.mod c.mod d.inc
-b.mod: file.f90 d.inc
-a.mod: file.f90 b.mod c.mod d.inc
+file.o:  file.f90  \
+  b.mod  \
+  a.mod  \
+  c.mod  \
+  d.inc
+b.mod:  file.f90  \
+  d.inc
+a.mod:  file.f90  \
+  b.mod  \
+  c.mod  \
+  d.inc
 ```
 
 ## Options
@@ -36,6 +44,8 @@ a.mod: file.f90 b.mod c.mod d.inc
 - `-p`: Add phony targets for each `#include` dependency. This avoids `make` errors if included files are removed without updating dependencies.
 
 ## Policy
+
+Requires `gcc`.
 
 ### Supported constructs
 

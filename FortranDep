@@ -1,13 +1,46 @@
 #!/bin/bash
-PhonyIncs=false
-
 FortranDepCore="./bin/FortranDepCore.x"
 
 Usage() {
 	echo "Generates make-compatible dependency rules for Fortran source files."
 	echo "Usage: "$0" [-p] <file>"
+	echo "-p: Add phony targets for each #include dependency."
 	exit 1
 }
+
+MergeIncludes() {
+	local MakeRule="$1"
+	local AdditionalIncludes="$2"
+
+	printf "%s\n" "$MakeRule" | awk -v add="$AdditionalIncludes" '
+    BEGIN {
+        n = split(add, extra, "\n")
+    }
+
+    # Cycle through lines ending with backslash.
+    /\\$/ {
+        print
+        next
+    }
+
+    # Last line of a rule.
+    {
+        # Print original line with continuation
+        printf "%s  \\\n", $0
+
+        # Append additional include files
+        for (i = 1; i <= n; i++) {
+            if (extra[i] != "") {
+                if (i < n)
+                    printf " %s  \\\n", extra[i]
+                else
+                    printf " %s\n", extra[i]
+            }
+        }
+    }'
+}
+
+PhonyIncs=false
 
 if [ "$#" -gt 2 ]; then
 	Usage
@@ -24,32 +57,55 @@ fi
 
 Basename=$(echo "$1" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
 
-Output=$(gcc -E -cpp -dI -I. "$1" |                          #Preprocess file.
-	eval "$FortranDepCore" |                                    #Run through the parser.
-	sed "s|#OBJTARGET#|$Basename.o|g" | sed "s|#FILEDEP#|$1|g") #Replace filenames.
+####################################
+# CPP part.
 
-echo "$Output"
+# Preprocessed output and line count.
+PreprocessedOutpout="$(gcc -E -cpp "$1")"
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+PreprocessedOutpoutLC="$(echo "$PreprocessedOutpout" | wc -l)"
 
+# Make include rules with dummys.
+IncludeRulesMP="$(gcc -E -cpp -MM -MP "$1")"
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+IncludeRulesMP="$(echo "${IncludeRulesMP}" | awk "NR>"$PreprocessedOutpoutLC"")"
+
+# Make include rules without dummys and line count up to dummys.
+IncludeRules="$(gcc -E -cpp -MM "$1")"
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+IncludeRules="$(echo "${IncludeRules}" | awk "NR>"$PreprocessedOutpoutLC"")"
+LCUpToIncludeRules="$(echo "$IncludeRules" | wc -l)"
+
+# Dummy list ':'-separated.
+DummyList="$(echo "${IncludeRulesMP}" | awk "NR>"$LCUpToIncludeRules"")"
+# Dummy list.
+IncludeFiles="$(echo "${DummyList}" | sed "s|:||g" | sed "s|^| |")"
+
+####################################
+# Fortran part.
+
+# Get Fortran dependencies.
+FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutpout")
+if [ $? -ne 0 ]; then
+	exit 1
+fi
+
+# Merge with #include dependencies.
+FortranDeps="$(MergeIncludes "$FortranDeps" "$IncludeFiles")"
+
+# Replace placeholder names.
+FortranDeps=$(echo "${FortranDeps}" | sed "s|#OBJECT#|$Basename.o|g" | sed "s|#SOURCEFILE#|$1|g")
+
+# Print rules.
+echo "${FortranDeps}"
+
+####################################
 if [ "$PhonyIncs" = true ]; then
-
-	Suffix=$(echo "$1" | sed 's|.*\.||')
-
-	Exclude="o mod smod $Suffix"
-
-	echo "$Output" | while IFS= read -r line; do
-		# Take RHS (after ':').
-		rhs="${line#*:}"
-		# Split RHS into tokens.
-		for file in $rhs; do
-			# Trim leading whitespace.
-			file="${file#"${file%%[![:space:]]*}"}"
-			# Check excluded suffixes.
-			skip=false
-			for ext in $Exclude; do
-				[[ "$file" == *.$ext ]] && skip=true
-			done
-			$skip && continue
-			printf '%s:\n' "$file"
-		done
-	done
+	echo "$DummyList"
 fi
