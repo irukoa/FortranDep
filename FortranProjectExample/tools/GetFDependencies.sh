@@ -1,6 +1,7 @@
 #!/bin/bash
 # $1: source code.
 # $2: object directory.
+# Optional: can receive GCC's options for preprocessing.
 if [ -z "$2" ]; then
 	./tools/FortranDep $1
 else

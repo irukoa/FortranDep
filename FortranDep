@@ -8,9 +8,10 @@ fi
 
 Usage() {
 	echo "Generates make-compatible dependency rules for Fortran source files." >&2
-	echo "Usage: "$0" [-p] [-d] <file>" >&2
+	echo "Usage: "$0" [-p] [-d] <file> [GccArgs]" >&2
 	echo "  -p: Add phony targets for each #include dependency." >&2
-	echo "  -d  Add a dependency target for the source file (depends on the source and all included files)." >&2
+	echo "  -d: Add a dependency target for the source file (depends on the source and all included files)." >&2
+	echo "  GccArgs: list of arguments to pass to gcc. Applied when preprocessing." >&2
 	exit 1
 }
 
@@ -69,31 +70,34 @@ done
 
 shift $((OPTIND - 1))
 
-if [ "$#" -ne 1 ] || [ -z "$1" ]; then
+File="$1"
+shift 1
+
+if [ -z "$File" ]; then
 	Usage
 fi
 
-Basename=$(echo "$1" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
+Basename=$(echo "$File" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
 
 ####################################
 # CPP part.
 
 # Preprocessed output and line count.
-PreprocessedOutpout="$(gcc -E -cpp -I. "$1")"
+PreprocessedOutpout="$(gcc "$@" -E -cpp -I. "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
 PreprocessedOutpoutLC="$(echo "$PreprocessedOutpout" | wc -l)"
 
 # Make include rules with dummys.
-IncludeRulesMP="$(gcc -E -cpp -I. -MM -MP "$1")"
+IncludeRulesMP="$(gcc "$@" -E -cpp -I. -MM -MP "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
 IncludeRulesMP="$(echo "${IncludeRulesMP}" | awk "NR>"$PreprocessedOutpoutLC"")"
 
 # Make include rules without dummys and line count up to dummys.
-IncludeRules="$(gcc -E -cpp -I. -MM "$1")"
+IncludeRules="$(gcc "$@" -E -cpp -I. -MM "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
@@ -115,7 +119,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$DepTarget" = true ]; then
-	FortranDeps="${Basename}.d: $1
+	FortranDeps="${Basename}.d: $File
   ${FortranDeps}"
 fi
 
@@ -123,12 +127,14 @@ fi
 FortranDeps="$(MergeIncludes "$FortranDeps" "$IncludeFiles")"
 
 # Replace placeholder names.
-FortranDeps=$(echo "${FortranDeps}" | sed "s|#OBJECT#|$Basename.o|g" | sed "s|#SOURCEFILE#|$1|g")
+FortranDeps=$(echo "${FortranDeps}" | sed "s|#OBJECT#|$Basename.o|g" | sed "s|#SOURCEFILE#|$File|g")
 
 # Print rules.
 echo "${FortranDeps}"
 
 ####################################
 if [ "$PhonyIncs" = true ]; then
-	echo "$DummyList"
+	if [[ $DummyList =~ [^[:space:]] ]]; then
+		printf '%s\n' "$DummyList"
+	fi
 fi
