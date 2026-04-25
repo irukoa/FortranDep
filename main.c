@@ -22,15 +22,15 @@ int main(const int         argc,
   for (i = 0; i < TargetCount; i++) {
     switch (TargetList[i]->Type) {
     case FDEP_OBJ_OBJECT:
-      (void)FDEP_ApiFprintf(stdout, "%s:", FDEP_ObjectName);
+      (void)FDEP_ApiFprintf(stdout, "%s:", FDEP_OBJECT_NAME);
       break;
     case FDEP_OBJ_MODULE:
       (void)FDEP_ApiFprintf(stdout, "%s.%s:", TargetList[i]->Name,
-                            FDEP_ModuleSuffix);
+                            FDEP_MODULE_SUFFIX);
       break;
     case FDEP_OBJ_SUBMODULE:
       (void)FDEP_ApiFprintf(stdout, "%s.%s:", TargetList[i]->Name,
-                            FDEP_SubModuleSuffix);
+                            FDEP_SUBMODULE_SUFFIX);
       break;
     default:
       continue;
@@ -41,17 +41,17 @@ int main(const int         argc,
     for (j = 0; j < TargetList[i]->DependencyCount; j++) {
       switch (TargetList[i]->DependencyList[j]->Type) {
       case FDEP_OBJ_SOURCE:
-        (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SourceName);
+        (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SOURCE_NAME);
         break;
       case FDEP_OBJ_MODULE:
         (void)FDEP_ApiFprintf(stdout, "  %s.%s",
                               TargetList[i]->DependencyList[j]->Name,
-                              FDEP_ModuleSuffix);
+                              FDEP_MODULE_SUFFIX);
         break;
       case FDEP_OBJ_SUBMODULE:
         (void)FDEP_ApiFprintf(stdout, "  %s.%s",
                               TargetList[i]->DependencyList[j]->Name,
-                              FDEP_SubModuleSuffix);
+                              FDEP_SUBMODULE_SUFFIX);
         break;
       default:
         continue;

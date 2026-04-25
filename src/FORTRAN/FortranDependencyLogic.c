@@ -1,9 +1,5 @@
 #include "src/FORTRAN/FortranDependencyLogic.h"
-
-const char FDEP_ObjectName[]      = "#OBJECT#";
-const char FDEP_SourceName[]      = "#SOURCEFILE#";
-const char FDEP_ModuleSuffix[]    = "mod";
-const char FDEP_SubModuleSuffix[] = "smod";
+#include "src/FORTRAN/FortranSyntax.h"
 
 size_t FDEP_StatementListIntoDependencyTree(
     FDEP_Target                     ***TargetList,
@@ -34,13 +30,13 @@ size_t FDEP_StatementListIntoDependencyTree(
     goto error_handler;
   }
   *TargetList      = (FDEP_Target **)TmpTargetList;
-  (*TargetList)[0] = FDEP_NewTarget(FDEP_ObjectName,
+  (*TargetList)[0] = FDEP_NewTarget(FDEP_OBJECT_NAME,
                                     (FDEP_ObjType)FDEP_OBJ_OBJECT, &ErrorCode);
   if (ErrorCode != NO_ERROR) {
     goto error_handler;
   }
   // The first dependency is always the source file.
-  (void)FDEP_AddDependencyToTarget(FDEP_SourceName,
+  (void)FDEP_AddDependencyToTarget(FDEP_SOURCE_NAME,
                                    (FDEP_ObjType)FDEP_OBJ_SOURCE,
                                    &((*TargetList)[0]), &ErrorCode);
   if (ErrorCode != NO_ERROR) {
@@ -68,7 +64,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       // The module target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
-          FDEP_SourceName, (FDEP_ObjType)FDEP_OBJ_SOURCE,
+          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
           &((*TargetList)[TargetCount - 1]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
@@ -116,7 +112,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       free(String);
       // The submodule target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
-          FDEP_SourceName, (FDEP_ObjType)FDEP_OBJ_SOURCE,
+          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
           &((*TargetList)[TargetCount - 1]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;

@@ -10,6 +10,11 @@
 #define FDEP_FORTRAN_STRING1      '\''
 #define FDEP_FORTRAN_STRING2      '"'
 
+#define FDEP_OBJECT_NAME      "#OBJECT#"
+#define FDEP_SOURCE_NAME      "#SOURCEFILE#"
+#define FDEP_MODULE_SUFFIX    "mod"
+#define FDEP_SUBMODULE_SUFFIX "smod"
+
 /* Preprocesses String according to Fortran format:
  - strips everything past the '!' token, and
  - makes everything lowercase.*/
