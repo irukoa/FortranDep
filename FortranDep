@@ -1,10 +1,15 @@
 #!/bin/bash
-FortranDepCore="./bin/FortranDepCore.x"
+ScriptDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FortranDepCore="$ScriptDir/FortranDepCore.x"
+if [ ! -x "$FortranDepCore" ]; then
+	echo "Error: FortranDepCore.x not found. Must be in same directory as FortranDep." >&2
+	exit 1
+fi
 
 Usage() {
-	echo "Generates make-compatible dependency rules for Fortran source files."
-	echo "Usage: "$0" [-p] <file>"
-	echo "-p: Add phony targets for each #include dependency."
+	echo "Generates make-compatible dependency rules for Fortran source files." >&2
+	echo "Usage: "$0" [-p] <file>" >&2
+	echo "-p: Add phony targets for each #include dependency." >&2
 	exit 1
 }
 

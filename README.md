@@ -8,7 +8,47 @@ Generates `make`-compatible dependency rules for Fortran source files, similarly
 FortranDep [-p] <file>
 ```
 
-### Example
+### Options
+
+- `-p`: Add phony targets for each `#include` dependency. This avoids `make` errors if included files are removed without updating dependencies.
+
+## Installation
+
+This tool is fully portable and does not require system-wide installation. To build the core executable, run:
+```
+make PROFILE=release && cp bin/FortranDepCore.x ./
+```
+The shell frontend `FortranDep` **must be co-located** with the compiled binary `FortranDepCore.x`. Both files are expected to live in the same directory at runtime—this is a strict requirement. You are, however, free to copy or move this pair of files anywhere (for example into a project-local `tools/` directory) as long as they remain together. This makes the tool well-suited as a project-specific dependency with no installation step.
+
+## Policy
+
+Requires `gcc`.
+
+Dependencies may be over-approximated when multiple program units are present in a single file.
+
+### Supported constructs
+
+- Fortran `use` statements (module dependencies).
+
+- Fortran `module`/`submodule` tracking.
+
+- We only guarantee correct results for valid Fortran.
+
+- CPP `#include` directives. Ownership model: all targets in the file depend on all included files.
+
+- Recursive include resolution.
+
+- GNU Fortran style submodule dependencies. That is, `submodule (a) b` will depend on `a.smod`.
+
+### Not supported
+
+- Fortran `include` statements (F77-style).
+
+- Fixed form Fortran.
+
+- Intel Fortran style submodule dependencies. That is, `submodule (a) b` will not depend on `a.mod`.
+
+## Example
 
 Given,
 ```
@@ -38,37 +78,3 @@ a.mod:  file.f90  \
   c.mod  \
   d.inc
 ```
-
-## Options
-
-- `-p`: Add phony targets for each `#include` dependency. This avoids `make` errors if included files are removed without updating dependencies.
-
-## Policy
-
-Requires `gcc`.
-
-### Supported constructs
-
-- Fortran `use` statements (module dependencies).
-
-- Fortran `module`/`submodule` tracking.
-
-- We only guarantee correct results for valid Fortran.
-
-- CPP `#include` directives. Ownership model: all targets in the file depend on all included files.
-
-- Recursive include resolution.
-
-- GNU Fortran style submodule dependencies. That is, `submodule (a) b` will depend on `a.smod`.
-
-### Not supported
-
-- Fortran `include` statements (F77-style).
-
-- Fixed form Fortran.
-
-- Intel Fortran style submodule dependencies. That is, `submodule (a) b` will not depend on `a.mod`.
-
-## Installation
-
-TODO
