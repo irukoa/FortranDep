@@ -8,8 +8,9 @@ fi
 
 Usage() {
 	echo "Generates make-compatible dependency rules for Fortran source files." >&2
-	echo "Usage: "$0" [-p] <file>" >&2
-	echo "-p: Add phony targets for each #include dependency." >&2
+	echo "Usage: "$0" [-p] [-d] <file>" >&2
+	echo "  -p: Add phony targets for each #include dependency." >&2
+	echo "  -d  Add a dependency target for the source file (depends on the source and all included files)." >&2
 	exit 1
 }
 
@@ -19,44 +20,56 @@ MergeIncludes() {
 
 	printf "%s\n" "$MakeRule" | awk -v add="$AdditionalIncludes" '
     BEGIN {
-        n = split(add, extra, "\n")
+      n = split(add, extra, "\n")
+      count = 0
+      for (i = 1; i <= n; i++) {
+        if (extra[i] != "") count++
+      }
     }
 
-    # Cycle through lines ending with backslash.
     /\\$/ {
-        print
-        next
+      print
+      next
     }
 
-    # Last line of a rule.
     {
-        # Print original line with continuation
+      if (count == 0) {
+        print
+      } else {
         printf "%s  \\\n", $0
 
-        # Append additional include files
+        c = 0
         for (i = 1; i <= n; i++) {
-            if (extra[i] != "") {
-                if (i < n)
-                    printf " %s  \\\n", extra[i]
-                else
-                    printf " %s\n", extra[i]
+          if (extra[i] != "") {
+            c++
+            if (c < count) {
+              printf " %s  \\\n", extra[i]
+            } else {
+              printf " %s\n", extra[i]
             }
+          }
         }
-    }'
+      }
+  }'
 }
 
 PhonyIncs=false
+DepTarget=false
 
-if [ "$#" -gt 2 ]; then
-	Usage
-fi
+while getopts ":pd" opt; do
+	case $opt in
+	p) PhonyIncs=true ;;
+	d) DepTarget=true ;;
+	\?)
+		echo "Invalid option: -$OPTARG" >&2
+		Usage
+		;;
+	esac
+done
 
-if [ "$1" == "-p" ]; then
-	PhonyIncs=true
-	shift
-fi
+shift $((OPTIND - 1))
 
-if [ -z "$1" ]; then
+if [ "$#" -ne 1 ] || [ -z "$1" ]; then
 	Usage
 fi
 
@@ -66,21 +79,21 @@ Basename=$(echo "$1" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
 # CPP part.
 
 # Preprocessed output and line count.
-PreprocessedOutpout="$(gcc -E -cpp "$1")"
+PreprocessedOutpout="$(gcc -E -cpp -I. "$1")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
 PreprocessedOutpoutLC="$(echo "$PreprocessedOutpout" | wc -l)"
 
 # Make include rules with dummys.
-IncludeRulesMP="$(gcc -E -cpp -MM -MP "$1")"
+IncludeRulesMP="$(gcc -E -cpp -I. -MM -MP "$1")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
 IncludeRulesMP="$(echo "${IncludeRulesMP}" | awk "NR>"$PreprocessedOutpoutLC"")"
 
 # Make include rules without dummys and line count up to dummys.
-IncludeRules="$(gcc -E -cpp -MM "$1")"
+IncludeRules="$(gcc -E -cpp -I. -MM "$1")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
@@ -90,7 +103,7 @@ LCUpToIncludeRules="$(echo "$IncludeRules" | wc -l)"
 # Dummy list ':'-separated.
 DummyList="$(echo "${IncludeRulesMP}" | awk "NR>"$LCUpToIncludeRules"")"
 # Dummy list.
-IncludeFiles="$(echo "${DummyList}" | sed "s|:||g" | sed "s|^| |")"
+IncludeFiles="$(echo "${DummyList}" | sed "s|:||g")"
 
 ####################################
 # Fortran part.
@@ -99,6 +112,11 @@ IncludeFiles="$(echo "${DummyList}" | sed "s|:||g" | sed "s|^| |")"
 FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutpout")
 if [ $? -ne 0 ]; then
 	exit 1
+fi
+
+if [ "$DepTarget" = true ]; then
+	FortranDeps="${Basename}.d: $1
+  ${FortranDeps}"
 fi
 
 # Merge with #include dependencies.

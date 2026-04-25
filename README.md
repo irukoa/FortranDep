@@ -5,12 +5,13 @@ Generates `make`-compatible dependency rules for Fortran source files, similarly
 ## Usage
 
 ```
-FortranDep [-p] <file>
+./$(PATH)/FortranDep [-p] [-d] <file>
 ```
 
 ### Options
 
 - `-p`: Add phony targets for each `#include` dependency. This avoids `make` errors if included files are removed without updating dependencies.
+- `-d`: Add a dependency target for the source file (depends on the source and all included files).
 
 ## Installation
 
@@ -34,7 +35,7 @@ Dependencies may be over-approximated when multiple program units are present in
 
 - We only guarantee correct results for valid Fortran.
 
-- CPP `#include` directives. Ownership model: all targets in the file depend on all included files.
+- CPP `#include` directives (searched with `-I.`). Ownership model: all targets in the file depend on all included files.
 
 - Recursive include resolution.
 
