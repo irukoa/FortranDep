@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// NOTE: not reentrant.
 static bool IsString    = false;
 static char StringOwner = '\0';
 

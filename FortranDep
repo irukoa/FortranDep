@@ -83,25 +83,25 @@ Basename=$(echo "$File" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
 # CPP part.
 
 # Preprocessed output and line count.
-PreprocessedOutpout="$(gcc "$@" -E -cpp -I. "$File")"
+PreprocessedOutput="$(gcc "$@" -E -cpp -I. "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
-PreprocessedOutpoutLC="$(echo "$PreprocessedOutpout" | wc -l)"
+PreprocessedOutputLC="$(echo "$PreprocessedOutput" | wc -l)"
 
 # Make include rules with dummys.
 IncludeRulesMP="$(gcc "$@" -E -cpp -I. -MM -MP "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
-IncludeRulesMP="$(echo "${IncludeRulesMP}" | awk "NR>"$PreprocessedOutpoutLC"")"
+IncludeRulesMP="$(echo "${IncludeRulesMP}" | awk "NR>"$PreprocessedOutputLC"")"
 
 # Make include rules without dummys and line count up to dummys.
 IncludeRules="$(gcc "$@" -E -cpp -I. -MM "$File")"
 if [ $? -ne 0 ]; then
 	exit 1
 fi
-IncludeRules="$(echo "${IncludeRules}" | awk "NR>"$PreprocessedOutpoutLC"")"
+IncludeRules="$(echo "${IncludeRules}" | awk "NR>"$PreprocessedOutputLC"")"
 LCUpToIncludeRules="$(echo "$IncludeRules" | wc -l)"
 
 # Dummy list ':'-separated.
@@ -113,7 +113,7 @@ IncludeFiles="$(echo "${DummyList}" | sed "s|:||g")"
 # Fortran part.
 
 # Get Fortran dependencies.
-FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutpout")
+FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutput")
 if [ $? -ne 0 ]; then
 	exit 1
 fi
