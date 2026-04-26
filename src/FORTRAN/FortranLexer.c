@@ -35,6 +35,7 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
   if (!Statement || !(Statement->TokenList) || (Statement->TokenCount == 0)) {
     return false;
   }
+
   for (i = 0; i < Statement->TokenCount; i++) {
     Token = FDEP_GetToken(Statement->TokenList[i]);
     if (Token == FDEP_TK_MODULE) {
@@ -74,6 +75,7 @@ bool FDEP_StatementContainsDefinedSubModule(
   if (!Statement || !(Statement->TokenList) || (Statement->TokenCount == 0)) {
     return false;
   }
+
   for (i = 0; i < Statement->TokenCount; i++) {
     Token = FDEP_GetToken(Statement->TokenList[i]);
     if (Token == FDEP_TK_SUBMODULE) {
@@ -102,6 +104,7 @@ bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
   if (!Statement || !(Statement->TokenList) || (Statement->TokenCount == 0)) {
     return false;
   }
+
   for (i = 0; i < Statement->TokenCount; i++) {
     Token = FDEP_GetToken(Statement->TokenList[i]);
     if (Token == FDEP_TK_USE) {

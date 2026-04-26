@@ -36,6 +36,7 @@ INTDEF(size_t,
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
+
   // Allocate space and copy string.
   StringCpy = (char *)FDEP_ApiMalloc(sizeof(char) * (strlen(String) + 1));
   if (!StringCpy) {
@@ -43,9 +44,11 @@ INTDEF(size_t,
     goto error_handler;
   }
   (void)strcpy(StringCpy, String);
+
   // Initialization.
   *TokenList = NULL;
   Token      = strtok_r(StringCpy, Delimiters, &SaveStrCpy);
+
   // Main loop.
   while (Token) {
     TokenCount++;
@@ -96,6 +99,7 @@ static void FDEP_FreeStatement(FDEP_Statement **Statement) {
   if (!Statement || !(*Statement)) {
     return;
   }
+
   if ((*Statement)->TokenList) {
     for (i = 0; i < (*Statement)->TokenCount; i++) {
       free((*Statement)->TokenList[i]);
@@ -115,6 +119,7 @@ static void FDEP_FreePartialStatement(FDEP_Statement **Statement,
   if (!Statement || !(*Statement)) {
     return;
   }
+
   for (i = 0; i < BuiltTokens; i++) {
     free((*Statement)->TokenList[i]);
   }
@@ -132,6 +137,7 @@ void FDEP_FreeStatementList(FDEP_Statement ***StatementList,
   if (!StatementList || !(*StatementList)) {
     return;
   }
+
   for (i = 0; i < StatementCount; i++) {
     FDEP_FreeStatement(&((*StatementList)[i]));
   }
@@ -176,8 +182,10 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
+
   // Initialization.
   *StatementList = NULL;
+
   // Main loop.
   while ((getline(&String, &Cap, Stream)) != -1) {
     if (StringPreprocess) {
@@ -230,6 +238,7 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
       String = (char *)TmpString;
       (void)strcat(String, NextLine);
     }
+
     // Splits String along statement separator markers.
     Substring = NULL;
     Substring = strtok_r(String, SeparatorMarkerString, &SaveSubstring);
@@ -262,6 +271,7 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
           ErrorCode = ERROR_ALLOC;
           goto error_handler;
         }
+
         // Cast CurrentStatement to *StatementList element.
         CurrentStatement =
             (FDEP_Statement *)((*StatementList)[StatementCount - 1]);
@@ -289,6 +299,7 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
           (void)strcpy(CurrentStatement->TokenList[i], TokenBuffer[i]);
           AllocatedTokenCount++;
         }
+
         CurrentStatement->TokenCount = FoundTokens;
         AllocatedStatementCount++;
         HasCurrentStatement = false;

@@ -1,22 +1,20 @@
 #include "src/DEP/Dependency.h"
 
-INTDEF(void,
-       FDEP_FreeDependency,
-       FDEP_Dependency **Dependency) {
+void FDEP_FreeDependency(FDEP_Dependency **Dependency) {
+
   if (!(Dependency) || !(*Dependency)) {
     return;
   }
+
   free((*Dependency)->Name);
   (*Dependency)->Name = NULL;
   free(*Dependency);
   *Dependency = NULL;
 }
 
-INTDEF(FDEP_Dependency *,
-       FDEP_NewDependency,
-       const char *const  Name,
-       const FDEP_ObjType Type,
-       FDEP_ErrorCode    *FailByCaller) {
+FDEP_Dependency *FDEP_NewDependency(const char *const  Name,
+                                    const FDEP_ObjType Type,
+                                    FDEP_ErrorCode    *FailByCaller) {
   FDEP_ErrorCode   ErrorCode       = NO_ERROR;
   bool             ParentAllocated = false;
   FDEP_Dependency *Dependency      = NULL;
@@ -26,6 +24,7 @@ INTDEF(FDEP_Dependency *,
     ErrorCode = ERROR_ALLOC;
     goto error_handler;
   }
+
   ParentAllocated  = true;
   Dependency->Name = NULL;
   Dependency->Name = (char *)FDEP_ApiMalloc(sizeof(char) * (strlen(Name) + 1));
@@ -35,6 +34,7 @@ INTDEF(FDEP_Dependency *,
   }
   (void)strcpy(Dependency->Name, Name);
   Dependency->Type = Type;
+
   return Dependency;
 error_handler:
   if (ParentAllocated)
@@ -54,6 +54,7 @@ void FDEP_FreeTarget(FDEP_Target **Target) {
   if (!Target || !(*Target)) {
     return;
   }
+
   free((*Target)->Name);
   (*Target)->Name = NULL;
   for (i = 0; i < (*Target)->DependencyCount; i++) {
@@ -77,6 +78,7 @@ FDEP_Target *FDEP_NewTarget(const char *const  Name,
     ErrorCode = ERROR_ALLOC;
     goto error_handler;
   }
+
   ParentAllocated = true;
   Target->Name    = NULL;
   Target->Name    = (char *)FDEP_ApiMalloc(sizeof(char) * (strlen(Name) + 1));
@@ -114,15 +116,18 @@ bool FDEP_AddDependencyToTarget(const char *const  Name,
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
+
   if ((0 == strcmp(Name, (*Target)->Name)) && (Type == (*Target)->Type)) {
     return false;
   }
+
   for (i = 0; i < (*Target)->DependencyCount; i++) {
     if ((0 == strcmp(Name, (*Target)->DependencyList[i]->Name)) &&
         (Type == (*Target)->DependencyList[i]->Type)) {
       return false;
     }
   }
+
   NewDependencyCount = (*Target)->DependencyCount + 1;
   TmpDependencyList =
       FDEP_ApiRealloc((void *)(*Target)->DependencyList,
@@ -156,6 +161,7 @@ void FDEP_FreeTargetList(FDEP_Target ***TargetList,
   if (!TargetList || !(*TargetList)) {
     return;
   }
+
   for (i = 0; i < TargetCount; i++) {
     FDEP_FreeTarget(&((*TargetList)[i]));
   }

@@ -13,13 +13,17 @@ int main(const int         argc,
 
   (void)argc;
   (void)argv;
+
   StatementCount = FDEP_TokenizeStream(
       &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
       FDEP_FORTRAN_SEPARATOR, stdin, FDEP_FortranPreprocess, NULL);
+
   TargetCount = FDEP_StatementListIntoDependencyTree(
       &TargetList, (const FDEP_Statement *const *const)StatementList,
       StatementCount, NULL);
+
   for (i = 0; i < TargetCount; i++) {
+
     switch (TargetList[i]->Type) {
     case FDEP_OBJ_OBJECT:
       (void)FDEP_ApiFprintf(stdout, "%s:", FDEP_OBJECT_NAME);
@@ -35,10 +39,13 @@ int main(const int         argc,
     default:
       continue;
     }
+
     if (TargetList[i]->DependencyCount == 0) {
       (void)FDEP_ApiFprintf(stdout, "\n");
     }
+
     for (j = 0; j < TargetList[i]->DependencyCount; j++) {
+
       switch (TargetList[i]->DependencyList[j]->Type) {
       case FDEP_OBJ_SOURCE:
         (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SOURCE_NAME);
@@ -56,6 +63,7 @@ int main(const int         argc,
       default:
         continue;
       }
+
       if (j != TargetList[i]->DependencyCount - 1) {
         (void)FDEP_ApiFprintf(stdout, "  \\\n");
       } else {
@@ -63,7 +71,9 @@ int main(const int         argc,
       }
     }
   }
+
   FDEP_FreeTargetList(&TargetList, TargetCount);
   FDEP_FreeStatementList(&StatementList, StatementCount);
+
   return EXIT_SUCCESS;
 }

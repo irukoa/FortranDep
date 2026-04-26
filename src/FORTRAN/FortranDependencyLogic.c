@@ -6,8 +6,8 @@ size_t FDEP_StatementListIntoDependencyTree(
     const FDEP_Statement *const *const StatementList,
     const size_t                       StatementCount,
     FDEP_ErrorCode                    *FailByCaller) {
-  FDEP_ErrorCode ErrorCode = NO_ERROR;
-  size_t         TargetCount;
+  FDEP_ErrorCode ErrorCode   = NO_ERROR;
+  size_t         TargetCount = 0;
   void          *TmpTargetList;
   size_t         i;
   bool           DefinesModule, DefinesSubmodule, UsesModule;
@@ -19,8 +19,10 @@ size_t FDEP_StatementListIntoDependencyTree(
     ErrorCode = ERROR_INPUT;
     goto error_handler;
   }
+
   // Initialization.
   *TargetList = NULL;
+
   // The first target is always the object file.
   TargetCount   = 1;
   TmpTargetList = NULL;
@@ -29,12 +31,14 @@ size_t FDEP_StatementListIntoDependencyTree(
     ErrorCode = ERROR_ALLOC;
     goto error_handler;
   }
-  *TargetList      = (FDEP_Target **)TmpTargetList;
+  *TargetList = (FDEP_Target **)TmpTargetList;
+
   (*TargetList)[0] = FDEP_NewTarget(FDEP_OBJECT_NAME,
                                     (FDEP_ObjType)FDEP_OBJ_OBJECT, &ErrorCode);
   if (ErrorCode != NO_ERROR) {
     goto error_handler;
   }
+
   // The first dependency is always the source file.
   (void)FDEP_AddDependencyToTarget(FDEP_SOURCE_NAME,
                                    (FDEP_ObjType)FDEP_OBJ_SOURCE,
@@ -42,7 +46,9 @@ size_t FDEP_StatementListIntoDependencyTree(
   if (ErrorCode != NO_ERROR) {
     goto error_handler;
   }
+
   for (i = 0; i < StatementCount; i++) {
+
     DefinesModule = FDEP_StatementContainsDefinedModule(
         StatementList[i], &IndexKeyword, &IndexName);
     if ((DefinesModule) && (IndexName < StatementList[i]->TokenCount)) {
@@ -62,6 +68,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
+
       // The module target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
           FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
@@ -78,6 +85,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       continue;
     }
+
     DefinesSubmodule = FDEP_StatementContainsDefinedSubModule(
         StatementList[i], &IndexKeyword, &IndexName);
     if ((DefinesSubmodule) && (IndexName < StatementList[i]->TokenCount) &&
@@ -110,6 +118,7 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       free(String);
+
       // The submodule target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
           FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
@@ -161,6 +170,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       }
       continue;
     }
+
     UsesModule = FDEP_StatementContainsUsedModule(StatementList[i],
                                                   &IndexKeyword, &IndexName);
     if ((UsesModule) && (IndexName < StatementList[i]->TokenCount)) {
@@ -180,6 +190,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       continue;
     }
   }
+
   return TargetCount;
 error_handler:
   FDEP_FreeTargetList(TargetList, TargetCount);

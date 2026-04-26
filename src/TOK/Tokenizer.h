@@ -3,50 +3,163 @@
 
 #include "src/API/API.h"
 
+/* ============================================================================
+ * INTERNAL API (not part of the public interface)
+ * ----------------------------------------------------------------------------
+ * These functions are for internal use only and may change or be removed
+ * without notice. Do not rely on them outside this module.
+ * ========================================================================== */
+
+/** @cond INTERNAL */
+
+/**
+ * @brief Internal helper for freeing token lists.
+ *
+ * @internal
+ * This function is not part of the public API.
+ */
 INTDEC(void,
        FDEP_FreeTokenList,
-       char      ***TokenList, // Reference to array of strings.
+       char      ***TokenList, /**< Pointer to array of strings. */
        const size_t TokenCount);
 
+/**
+ * @brief Internal helper for splitting raw input into tokens.
+ *
+ * @internal
+ * This function is not part of the public API.
+ */
 INTDEC(size_t,
        FDEP_Tokenize,
        const char *const String,
        const char *const Delimiters,
-       char           ***TokenList, // Reference to array of strings.
+       char           ***TokenList, /**< Pointer to array of strings. */
        FDEP_ErrorCode   *FailByCaller);
 
+/// @endcond
+
+/**
+ * @brief Represents a tokenized statement.
+ *
+ * @details
+ * A statement consists of a dynamically allocated array of tokens (strings),
+ * produced during stream tokenization.
+ *
+ * Each token is a null-terminated string. The TokenList array stores pointers
+ * to these strings.
+ *
+ * @note
+ * - Both the TokenList array and the individual tokens are dynamically
+ * allocated.
+ * - Instances of this struct are typically created by FDEP_TokenizeStream.
+ *
+ * @warning
+ * - TokenCount represents the number of valid tokens stored in TokenList.
+ * - The capacity of TokenList is equal to TokenCount unless otherwise
+ * specified.
+ *
+ * @see FDEP_TokenizeStream
+ * @see FDEP_FreeStatementList
+ */
 typedef struct _FDEP_Statement {
-  char **TokenList;  // Array of strings.
-  size_t TokenCount; // Array capacity.
+  char **TokenList;  /**< Array of token strings. */
+  size_t TokenCount; /**< Number of tokens in TokenList. */
 } FDEP_Statement;
 
-/* Frees a statement list previously allocated by FDEP_TokenizeStream. It's safe
- * to pass StatementCount = 0.*/
-void FDEP_FreeStatementList(
-    FDEP_Statement **
-        *StatementList, // Reference to array of FDEP_Statement pointers.
-    const size_t StatementCount);
-
-/* Transforms the input from Stream into a statement list according to
- Delimiters. Any string which ends with a continuation marker is concatenated
- with the next. Statements are strings split along separation markers. The
- function allocates memory for StatementList and returns the number of elements.
- If no statements are found, return value is 0 and no allocation is performed. A
- string preproccesing rule may be optionally applied by passing
- StringPreprocess. Passing NULL will disable string preprocessing.
- On failure:
-  if FailByCaller is NULL, calls FDEP_API_ERROR;
-  otherwise, writes the error code in the value of FailByCaller and returns 0.
-  Any memory allocated by the function is freed.
+/**
+ * @brief Frees a list of statements and all associated memory.
+ *
+ * @details
+ * Releases all memory allocated for a statement list created by
+ * FDEP_TokenizeStream, including:
+ * - Each FDEP_Statement structure
+ * - Each token string within TokenList
+ * - Each TokenList array
+ * - The StatementList array itself
+ *
+ * @param[in,out] StatementList
+ *     Pointer to the array of FDEP_Statement pointers to be freed.
+ *     After this call, the pointer becomes invalid.
+ *
+ * @param[in] StatementCount
+ *     Number of statements in the StatementList array.
+ *
+ * @note
+ * - It is safe to call this function with StatementCount == 0.
+ * - In this case, StatementList may be NULL or a valid pointer; no action is
+ * taken.
+ *
+ * @warning
+ * - Passing an invalid or partially initialized StatementList results in
+ *   undefined behavior.
+ *
+ * @see FDEP_TokenizeStream
  */
-size_t FDEP_TokenizeStream(
-    FDEP_Statement **
-        *StatementList, // Reference to array of FDEP_Statement pointers.
-    const char *const Delimiters,
-    const char        ContinuationMarker,
-    const char        SeparatorMarker,
-    FILE             *Stream,
-    void (*StringPreprocess)(char *String),
-    FDEP_ErrorCode *FailByCaller);
+void FDEP_FreeStatementList(FDEP_Statement ***StatementList,
+                            const size_t      StatementCount);
+
+/**
+ * @brief Tokenizes an input stream into a list of statements.
+ *
+ * @details
+ * Reads data from the given Stream and splits it into statements using
+ * SeparatorMarker. Each statement is further processed using the set of
+ * Delimiters.
+ *
+ * If a string ends with ContinuationMarker, it is concatenated with the
+ * subsequent string before tokenization.
+ *
+ * An optional preprocessing step can be applied to each string prior to
+ * tokenization by providing a StringPreprocess function.
+ *
+ * @param[out] StatementList
+ *     Pointer to an array of FDEP_Statement pointers. Memory is allocated
+ *     by this function on success. The caller is responsible for freeing it.
+ *
+ * @param[in] Delimiters
+ *     Null-terminated string containing delimiter characters.
+ *
+ * @param[in] ContinuationMarker
+ *     Character indicating that the current string continues onto the next.
+ *
+ * @param[in] SeparatorMarker
+ *     Character used to separate statements in the input.
+ *
+ * @param[in] Stream
+ *     Input stream to read from.
+ *
+ * @param[in] StringPreprocess
+ *     Optional function applied to each string before tokenization.
+ *     Pass NULL to disable preprocessing.
+ *
+ * @param[out] FailByCaller
+ *     Optional pointer to receive an error code. If NULL, errors are handled
+ *     internally via FDEP_API_ERROR.
+ *
+ * @return
+ * Number of statements parsed. Returns 0 if no statements are found or if
+ * an error occurs.
+ *
+ * @note
+ * - Memory for StatementList is allocated only if the return value is greater
+ * than 0.
+ * - The caller assumes ownership of the allocated memory.
+ *
+ * @warning
+ * StatementList must be a valid pointer. Behavior is undefined otherwise.
+ *
+ * @error
+ * On failure:
+ * - If FailByCaller is non-NULL, the error code is written to it.
+ * - If FailByCaller is NULL, FDEP_API_ERROR is invoked.
+ * - Any memory allocated during execution is freed before returning.
+ */
+size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
+                           const char *const Delimiters,
+                           const char        ContinuationMarker,
+                           const char        SeparatorMarker,
+                           FILE             *Stream,
+                           void (*StringPreprocess)(char *String),
+                           FDEP_ErrorCode *FailByCaller);
 
 #endif
