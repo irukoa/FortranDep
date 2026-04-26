@@ -12,12 +12,16 @@ size_t FDEP_StatementListIntoDependencyTree(
   size_t         i;
   bool           DefinesModule, DefinesSubmodule, UsesModule;
   size_t         IndexKeyword, IndexName;
-  char          *String;
+  char          *String = NULL;
   size_t         AncestorCount;
 
   if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
-    goto error_handler;
+    if (FailByCaller) {
+      *FailByCaller = ErrorCode;
+      return 0;
+    }
+    FDEP_API_ERROR(ErrorCode);
   }
 
   // Initialization.
@@ -193,11 +197,12 @@ size_t FDEP_StatementListIntoDependencyTree(
 
   return TargetCount;
 error_handler:
+  free(String);
   FDEP_FreeTargetList(TargetList, TargetCount);
   if (FailByCaller) {
     *FailByCaller = ErrorCode;
     return 0;
   }
   FDEP_API_ERROR(ErrorCode);
-  return 0;
+  abort();
 }

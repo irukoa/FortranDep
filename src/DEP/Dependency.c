@@ -45,7 +45,7 @@ error_handler:
     return NULL;
   }
   FDEP_API_ERROR(ErrorCode);
-  return NULL;
+  abort();
 }
 
 void FDEP_FreeTarget(FDEP_Target **Target) {
@@ -100,7 +100,7 @@ error_handler:
     return NULL;
   }
   FDEP_API_ERROR(ErrorCode);
-  return NULL;
+  abort();
 }
 
 bool FDEP_AddDependencyToTarget(const char *const  Name,
@@ -151,7 +151,7 @@ error_handler:
     return false;
   }
   FDEP_API_ERROR(ErrorCode);
-  return false;
+  abort();
 }
 
 void FDEP_FreeTargetList(FDEP_Target ***TargetList,
