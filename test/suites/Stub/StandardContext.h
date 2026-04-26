@@ -30,6 +30,9 @@ CONTEXT_FN(FDEP_StandardTeardown) {
     fclose(Data->FakeStream);
     Data->FakeStream = NULL;
   }
+  FDEP_ResetMallocFailCfg();
+  FDEP_ResetReallocFailCfg();
+  FDEP_ResetFerrorFailCfg();
   // Rewind FDEP_ApiMalloc.
   RESET_FN(FDEP_ApiMalloc);
   // Rewind FDEP_ApiRealloc.

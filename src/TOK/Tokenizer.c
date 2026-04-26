@@ -34,8 +34,15 @@ INTDEF(size_t,
 
   if (!String || !Delimiters || !TokenList) {
     ErrorCode = ERROR_INPUT;
-    goto error_handler;
+    if (FailByCaller) {
+      *FailByCaller = ErrorCode;
+      return 0;
+    }
+    FDEP_API_ERROR(ErrorCode);
   }
+
+  // Initialization.
+  *TokenList = NULL;
 
   // Allocate space and copy string.
   StringCpy = (char *)FDEP_ApiMalloc(sizeof(char) * (strlen(String) + 1));
@@ -45,10 +52,7 @@ INTDEF(size_t,
   }
   (void)strcpy(StringCpy, String);
 
-  // Initialization.
-  *TokenList = NULL;
-  Token      = strtok_r(StringCpy, Delimiters, &SaveStrCpy);
-
+  Token = strtok_r(StringCpy, Delimiters, &SaveStrCpy);
   // Main loop.
   while (Token) {
     TokenCount++;
@@ -90,15 +94,11 @@ error_handler:
     return 0;
   }
   FDEP_API_ERROR(ErrorCode);
-  return 0;
+  abort();
 }
 
 static void FDEP_FreeStatement(FDEP_Statement **Statement) {
   size_t i;
-
-  if (!Statement || !(*Statement)) {
-    return;
-  }
 
   if ((*Statement)->TokenList) {
     for (i = 0; i < (*Statement)->TokenCount; i++) {
@@ -115,10 +115,6 @@ static void FDEP_FreeStatement(FDEP_Statement **Statement) {
 static void FDEP_FreePartialStatement(FDEP_Statement **Statement,
                                       const size_t     BuiltTokens) {
   size_t i;
-
-  if (!Statement || !(*Statement)) {
-    return;
-  }
 
   for (i = 0; i < BuiltTokens; i++) {
     free((*Statement)->TokenList[i]);
@@ -168,7 +164,7 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
   bool   PrecededByBlanks;
   // Statement tokenizing.
   void           *TmpStatementList;
-  char          **TokenBuffer;
+  char          **TokenBuffer = NULL;
   size_t          FoundTokens;
   FDEP_Statement *CurrentStatement;
   size_t          StatementCount = 0;
@@ -180,7 +176,11 @@ size_t FDEP_TokenizeStream(FDEP_Statement ***StatementList,
 
   if (!StatementList || !Delimiters || !Stream) {
     ErrorCode = ERROR_INPUT;
-    goto error_handler;
+    if (FailByCaller) {
+      *FailByCaller = ErrorCode;
+      return 0;
+    }
+    FDEP_API_ERROR(ErrorCode);
   }
 
   // Initialization.
@@ -338,5 +338,5 @@ error_handler:
     return 0;
   }
   FDEP_API_ERROR(ErrorCode);
-  return 0;
+  abort();
 }
