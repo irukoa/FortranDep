@@ -64,5 +64,85 @@ TEST_F(FDEP_Standard,
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
 
+TEST_F(FDEP_Standard,
+       Functional2) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  const char                Contents[] = "submodule(a) b\n"
+                                         "  use k\n"
+                                         "end submodule b\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  ASSERT(TargetCount == 2);
+  // TODO
+  FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       Functional3) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  const char                Contents[] = "submodule(a:b) c\n"
+                                         "  use k\n"
+                                         "end submodule c\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  ASSERT(TargetCount == 2);
+  // TODO
+  FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
 TEST_SUITE(FunctionalSuite,
-           Functional1);
+           Functional1,
+           Functional2,
+           Functional3);
