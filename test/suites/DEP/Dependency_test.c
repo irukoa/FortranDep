@@ -65,3 +65,217 @@ TEST_F(FDEP_Standard,
 
 TEST_SUITE(DependencySuite,
            TestFDEP_DependencyNominal);
+
+TEST_F(FDEP_Standard,
+       TestFDEP_DependencyError) {
+  (void)ContextData;
+  bool             Ran        = false;
+  FDEP_ErrorCode   ErrorCode  = NO_ERROR;
+  FDEP_Dependency *Dependency = NULL;
+  FDEP_ResetMallocFailCfg();
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran        = true;
+    Dependency = FDEP_NewDependency("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!Dependency);
+  Ran = false;
+  FDEP_SetMallocFailCfg(2);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran        = true;
+    Dependency = FDEP_NewDependency("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!Dependency);
+  Ran = false;
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran        = true;
+    Dependency = FDEP_NewDependency("a", 1, NULL);
+  }
+  ASSERT_X(Ran);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 1);
+  ASSERT(FDEP_ApiError_Mock_fake.arg0_history[0] == ERROR_ALLOC);
+  Ran = false;
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_TargetError) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  FDEP_Target   *Target    = NULL;
+  FDEP_ResetMallocFailCfg();
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!Target);
+  Ran = false;
+  FDEP_SetMallocFailCfg(2);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!Target);
+  Ran = false;
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, NULL);
+  }
+  ASSERT_X(Ran);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 1);
+  ASSERT(FDEP_ApiError_Mock_fake.arg0_history[0] == ERROR_ALLOC);
+  Ran = false;
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_AddDependencyToTargetError1) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  FDEP_Target   *Target    = NULL;
+  bool           DepAdded  = false;
+  // Input errors.
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran = true;
+    (void)FDEP_AddDependencyToTarget("b", 2, NULL, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_INPUT);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran = true;
+    (void)FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_INPUT);
+  ASSERT(!Target);
+  Ran = false;
+  FDEP_FreeTarget(NULL);
+  FDEP_FreeTarget(&Target);
+  // Create a target.
+  ErrorCode = NO_ERROR;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  ASSERT(Target);
+  // Add legitimate dependency.
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran      = true;
+    DepAdded = FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  ASSERT(DepAdded);
+  // Do not add dependency (same as target).
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran      = true;
+    DepAdded = FDEP_AddDependencyToTarget("a", 1, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  ASSERT(!DepAdded);
+  // Fail while adding new dependency.
+  FDEP_ResetReallocFailCfg();
+  FDEP_SetReallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran      = true;
+    DepAdded = FDEP_AddDependencyToTarget("c", 3, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!DepAdded);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_AddDependencyToTargetError2) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  FDEP_Target   *Target    = NULL;
+  bool           DepAdded  = false;
+  // Create a target.
+  ErrorCode = NO_ERROR;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  ASSERT(Target);
+  // Add legitimate dependency.
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran      = true;
+    DepAdded = FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  ASSERT(DepAdded);
+  // Fail while adding new dependency.
+  FDEP_ResetMallocFailCfg();
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran      = true;
+    DepAdded = FDEP_AddDependencyToTarget("c", 3, &Target, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  ASSERT(!DepAdded);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_AddDependencyToTargetError3) {
+  (void)ContextData;
+  bool         Ran    = false;
+  FDEP_Target *Target = NULL;
+  // Create a target.
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran    = true;
+    Target = FDEP_NewTarget("a", 1, NULL);
+  }
+  ASSERT_X(Ran);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+  ASSERT(Target);
+  // Fail while adding new dependency.
+  FDEP_ResetMallocFailCfg();
+  FDEP_SetMallocFailCfg(1);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran = true;
+    (void)FDEP_AddDependencyToTarget("c", 3, &Target, NULL);
+  }
+  ASSERT_X(Ran);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 1);
+  ASSERT(FDEP_ApiError_Mock_fake.arg0_history[0] == ERROR_ALLOC);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_FreeTargetListNull) {
+  (void)ContextData;
+  FDEP_Target **TargetList = NULL;
+  FDEP_FreeTargetList(NULL, 0);
+  FDEP_FreeTargetList(&TargetList, 0);
+}
+
+TEST_SUITE(DependencyErrorSuite,
+           TestFDEP_DependencyError,
+           TestFDEP_TargetError,
+           TestFDEP_AddDependencyToTargetError1,
+           TestFDEP_AddDependencyToTargetError2,
+           TestFDEP_AddDependencyToTargetError3,
+           TestFDEP_FreeTargetListNull);
