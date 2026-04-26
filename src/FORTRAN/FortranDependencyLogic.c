@@ -57,15 +57,15 @@ size_t FDEP_StatementListIntoDependencyTree(
         StatementList[i], &IndexKeyword, &IndexName);
     if ((DefinesModule) && (IndexName < StatementList[i]->TokenCount)) {
       // New module target.
-      TargetCount++;
       TmpTargetList = NULL;
       TmpTargetList = (FDEP_Target **)FDEP_ApiRealloc(
-          (void *)(*TargetList), sizeof(FDEP_Target *) * TargetCount);
+          (void *)(*TargetList), sizeof(FDEP_Target *) * (TargetCount + 1));
       if (!TmpTargetList) {
         ErrorCode = ERROR_ALLOC;
         goto error_handler;
       }
       *TargetList = (FDEP_Target **)TmpTargetList;
+      TargetCount++;
       (*TargetList)[TargetCount - 1] =
           FDEP_NewTarget(StatementList[i]->TokenList[IndexName],
                          (FDEP_ObjType)FDEP_OBJ_MODULE, &ErrorCode);
@@ -95,10 +95,9 @@ size_t FDEP_StatementListIntoDependencyTree(
     if ((DefinesSubmodule) && (IndexName < StatementList[i]->TokenCount) &&
         (IndexKeyword < IndexName - 1)) {
       // New submodule target.
-      TargetCount++;
       TmpTargetList = NULL;
       TmpTargetList = (FDEP_Target **)FDEP_ApiRealloc(
-          (void *)(*TargetList), sizeof(FDEP_Target *) * TargetCount);
+          (void *)(*TargetList), sizeof(FDEP_Target *) * (TargetCount + 1));
       if (!TmpTargetList) {
         ErrorCode = ERROR_ALLOC;
         goto error_handler;
@@ -113,6 +112,7 @@ size_t FDEP_StatementListIntoDependencyTree(
         ErrorCode = ERROR_ALLOC;
         goto error_handler;
       }
+      TargetCount++;
       (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
       (void)strcat(String, "@");
       (void)strcat(String, StatementList[i]->TokenList[IndexName]);
@@ -122,6 +122,7 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       free(String);
+      String = NULL;
 
       // The submodule target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
@@ -131,7 +132,6 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       // The submodule target depends on the ancestor (sub)module file.
-      String        = NULL;
       AncestorCount = IndexName - IndexKeyword - 1;
       if (AncestorCount > 1) {
         String = (char *)FDEP_ApiMalloc(
@@ -165,6 +165,7 @@ size_t FDEP_StatementListIntoDependencyTree(
         goto error_handler;
       }
       free(String);
+      String = NULL;
       // The object target depends on the submodule file itself.
       (void)FDEP_AddDependencyToTarget((*TargetList)[TargetCount - 1]->Name,
                                        (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
