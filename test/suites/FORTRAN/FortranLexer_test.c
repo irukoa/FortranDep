@@ -10,7 +10,7 @@ TEST_F(FDEP_Standard,
   bool           Ran       = false;
   FDEP_ErrorCode ErrorCode = NO_ERROR;
   // String simulates a Fortran statement, so no ";" "&" will appear in the
-  // String.
+  // string.
   const char     String[] = "module a";
   FDEP_Statement Statement;
   bool           IsModule;
