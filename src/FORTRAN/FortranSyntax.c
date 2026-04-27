@@ -34,10 +34,11 @@ void FDEP_FortranPreprocess(char *String) {
         String[i] = '&';
       }
     }
-  }
-  // Strip comments.
-  if ((Position = strchr(String, FDEP_FORTRAN_COMMENT))) {
-    *Position = '\0';
+    // Strip comments.
+    if ((!IsString) && (String[i] == FDEP_FORTRAN_COMMENT)) {
+      String[i] = '\0';
+      break;
+    }
   }
   // Remove newline.
   if ((Position = strchr(String, '\n'))) {
