@@ -44,9 +44,9 @@ MergeIncludes() {
           if (extra[i] != "") {
             c++
             if (c < count) {
-              printf " %s  \\\n", extra[i]
+              printf "  %s  \\\n", extra[i]
             } else {
-              printf " %s\n", extra[i]
+              printf "  %s\n", extra[i]
             }
           }
         }
@@ -119,8 +119,8 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$DepTarget" = true ]; then
-	FortranDeps="${Basename}.d: $File
-  ${FortranDeps}"
+	FortranDeps="${Basename}.d:  $File
+${FortranDeps}"
 fi
 
 # Merge with #include dependencies.
