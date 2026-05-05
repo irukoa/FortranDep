@@ -44,6 +44,9 @@ typedef enum {
  * @param[in] StatementCount
  *     Number of elements in StatementList.
  *
+ * @param[in] StrictMode
+ *     If TRUE, the object file depends on module files.
+ *
  * @param[out] FailByCaller
  *     Optional pointer to receive an error code. If NULL, errors are handled
  *     internally via FDEP_API_ERROR.
@@ -74,6 +77,7 @@ size_t FDEP_StatementListIntoDependencyTree(
     FDEP_Target                     ***TargetList,
     const FDEP_Statement *const *const StatementList,
     const size_t                       StatementCount,
+    const bool                         StrictMode,
     FDEP_ErrorCode                    *FailByCaller);
 
 #endif

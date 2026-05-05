@@ -10,9 +10,13 @@ int main(const int         argc,
   FDEP_Target    **TargetList = NULL;
   size_t           TargetCount;
   size_t           i, j;
+  bool             StrictMode = true;
 
-  (void)argc;
-  (void)argv;
+  if (argc > 1) {
+    if (strcmp(argv[1], "-l") == 0) {
+      StrictMode = false;
+    }
+  }
 
   StatementCount = FDEP_TokenizeStream(
       &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
@@ -20,7 +24,7 @@ int main(const int         argc,
 
   TargetCount = FDEP_StatementListIntoDependencyTree(
       &TargetList, (const FDEP_Statement *const *const)StatementList,
-      StatementCount, NULL);
+      StatementCount, StrictMode, NULL);
 
   for (i = 0; i < TargetCount; i++) {
 
