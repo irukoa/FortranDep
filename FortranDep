@@ -8,9 +8,10 @@ fi
 
 Usage() {
 	echo "Generates make-compatible dependency rules for Fortran source files." >&2
-	echo "Usage: "$0" [-p] [-d] <file> [GccArgs]" >&2
+	echo "Usage: "$0" [-p] [-d] [-l] <file> [GccArgs]" >&2
 	echo "  -p: Add phony targets for each #include dependency." >&2
 	echo "  -d: Add a dependency target for the source file (depends on the source and all included files)." >&2
+	echo "  -l: Enable lax mode (object files do not depend on program units defined within them)." >&2
 	echo "  GccArgs: list of arguments to pass to gcc. Applied when preprocessing." >&2
 	exit 1
 }
@@ -56,11 +57,13 @@ MergeIncludes() {
 
 PhonyIncs=false
 DepTarget=false
+Strict=true
 
-while getopts ":pd" opt; do
+while getopts ":pdl" opt; do
 	case $opt in
 	p) PhonyIncs=true ;;
 	d) DepTarget=true ;;
+	l) Strict=false ;;
 	\?)
 		echo "Invalid option: -$OPTARG" >&2
 		Usage
@@ -113,7 +116,11 @@ IncludeFiles="$(echo "${DummyList}" | sed "s|:||g")"
 # Fortran part.
 
 # Get Fortran dependencies.
-FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutput")
+if [ "$Strict" = true ]; then
+	FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutput")
+else
+	FortranDeps=$(eval "$FortranDepCore -l" <<<"$PreprocessedOutput")
+fi
 if [ $? -ne 0 ]; then
 	exit 1
 fi
@@ -127,7 +134,9 @@ fi
 FortranDeps="$(MergeIncludes "$FortranDeps" "$IncludeFiles")"
 
 # Replace placeholder names.
-FortranDeps=$(echo "${FortranDeps}" | sed "s|#OBJECT#|$Basename.o|g" | sed "s|#SOURCEFILE#|$File|g")
+FortranDeps=$(echo "${FortranDeps}" |
+	sed "s|#OBJECT#|$Basename.o|g" |
+	sed "s|#SOURCEFILE#|$File|g")
 
 # Print rules.
 echo "${FortranDeps}"

@@ -7,7 +7,26 @@
     "program": "${workspaceFolder}/bin/FortranDepCore.x",
     "args": [],
     "stopAtEntry": true,
-    "miDebuggerArgs": "-ex \"run < ${workspaceFolder}/${input:inputFile}\"",
+    "miDebuggerArgs": "-ex \"run ${input:inputFlags} < ${workspaceFolder}/${input:inputFile}\"",
+    "cwd": "${config:debug.dbgBinCwd}",
+    "environment": [],
+    "MIMode": "gdb",
+    "setupCommands": [
+      {
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }
+    ]
+  },
+  {
+    "name": "Dgb BIN DI",
+    "type": "cppdbg",
+    "request": "launch",
+    "program": "${workspaceFolder}/bin/FortranDepCore.x",
+    "args": [],
+    "stopAtEntry": true,
+    "miDebuggerArgs": "-ex \"run ${input:inputFlags}\"",
     "cwd": "${config:debug.dbgBinCwd}",
     "environment": [],
     "MIMode": "gdb",
@@ -44,6 +63,12 @@
       "type": "promptString",
       "description": "Input file (relative to workspace)",
       "default": "test/BinExample.f90"
+    },
+    {
+      "id": "inputFlags",
+      "type": "promptString",
+      "description": "Input flags",
+      "default": ""
     }
   ]
 
