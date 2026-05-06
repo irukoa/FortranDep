@@ -5,7 +5,7 @@ Generates `make`-compatible dependency rules for Fortran source files, similarly
 ## Usage
 
 ```
-./$(PATH)/FortranDep [-p] [-d] <file> [GccArgs]
+./$(PATH)/FortranDep [-p] [-d] [-l] <file> [GccArgs]
 ```
 
 ### Options
@@ -13,7 +13,7 @@ Generates `make`-compatible dependency rules for Fortran source files, similarly
 - `-p`: Add phony targets for each `#include` dependency. This avoids `make` errors if included files are removed without updating dependencies.
 - `-d`: Add a dependency target for the source file (depends on the source and all included files).
 - `-l`: Enable lax mode (object files do not depend on program units defined within them).
-- `GccArgs`: list of arguments to pass to gcc. Applied when preprocessing.
+- `GccArgs`: list of arguments to pass to `gcc`. Applied when preprocessing.
 
 ## Installation
 

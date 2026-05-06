@@ -15,7 +15,7 @@ size_t FDEP_StatementListIntoDependencyTree(
   size_t         IndexKeyword, IndexName;
   char          *String = NULL;
   size_t         AncestorCount;
-  bool           Defined = false;
+  bool           Defined;
 
   if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
@@ -159,40 +159,31 @@ size_t FDEP_StatementListIntoDependencyTree(
         }
         (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
       }
+      Defined = false;
+      // Check if the program unit lives in the same file.
       if (!StrictMode) {
-        Defined = false;
         for (j = 0; j < TargetCount - 1; j++) {
-          if (strcmp(String, ((*TargetList)[j])->Name) == 0) {
+          if ((strcmp(String, ((*TargetList)[j])->Name) == 0) &&
+              ((((*TargetList)[j])->Type == FDEP_OBJ_MODULE) ||
+               (((*TargetList)[j])->Type == FDEP_OBJ_SUBMODULE))) {
             Defined = true;
             break;
           }
         }
       }
-      if (StrictMode) {
+      if (!Defined) {
         (void)FDEP_AddDependencyToTarget(
             String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
             &((*TargetList)[TargetCount - 1]), &ErrorCode);
-      } else {
-        if (!Defined) {
-          (void)FDEP_AddDependencyToTarget(
-              String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
-              &((*TargetList)[TargetCount - 1]), &ErrorCode);
-        }
       }
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
       // The object target depends on the ancestor (sub)module file.
-      if (StrictMode) {
+      if (!Defined) {
         (void)FDEP_AddDependencyToTarget(String,
                                          (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
                                          &((*TargetList)[0]), &ErrorCode);
-      } else {
-        if (!Defined) {
-          (void)FDEP_AddDependencyToTarget(String,
-                                           (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
-                                           &((*TargetList)[0]), &ErrorCode);
-        }
       }
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
