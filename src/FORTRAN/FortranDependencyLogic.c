@@ -209,7 +209,7 @@ size_t FDEP_StatementListIntoDependencyTree(
       Defined = false;
       // Check if the program unit lives in the same file.
       if (!StrictMode) {
-        for (j = 0; j < TargetCount - 1; j++) {
+        for (j = 0; j < TargetCount; j++) {
           if ((strcmp(StatementList[i]->TokenList[IndexName],
                       ((*TargetList)[j])->Name) == 0) &&
               ((((*TargetList)[j])->Type == FDEP_OBJ_MODULE))) {
