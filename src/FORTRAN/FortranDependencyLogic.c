@@ -205,18 +205,35 @@ size_t FDEP_StatementListIntoDependencyTree(
     UsesModule = FDEP_StatementContainsUsedModule(StatementList[i],
                                                   &IndexKeyword, &IndexName);
     if ((UsesModule) && (IndexName < StatementList[i]->TokenCount)) {
-      // Current owner and object target get a module dependency.
-      (void)FDEP_AddDependencyToTarget(
-          StatementList[i]->TokenList[IndexName], (FDEP_ObjType)FDEP_OBJ_MODULE,
-          &((*TargetList)[TargetCount - 1]), &ErrorCode);
-      if (ErrorCode != NO_ERROR) {
-        goto error_handler;
+
+      Defined = false;
+      // Check if the program unit lives in the same file.
+      if (!StrictMode) {
+        for (j = 0; j < TargetCount - 1; j++) {
+          if ((strcmp(StatementList[i]->TokenList[IndexName],
+                      ((*TargetList)[j])->Name) == 0) &&
+              ((((*TargetList)[j])->Type == FDEP_OBJ_MODULE))) {
+            Defined = true;
+            break;
+          }
+        }
       }
-      (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
-                                       (FDEP_ObjType)FDEP_OBJ_MODULE,
-                                       &((*TargetList)[0]), &ErrorCode);
-      if (ErrorCode != NO_ERROR) {
-        goto error_handler;
+
+      if (!Defined) {
+        // Current owner and object target get a module dependency.
+        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
+                                         (FDEP_ObjType)FDEP_OBJ_MODULE,
+                                         &((*TargetList)[TargetCount - 1]),
+                                         &ErrorCode);
+        if (ErrorCode != NO_ERROR) {
+          goto error_handler;
+        }
+        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
+                                         (FDEP_ObjType)FDEP_OBJ_MODULE,
+                                         &((*TargetList)[0]), &ErrorCode);
+        if (ErrorCode != NO_ERROR) {
+          goto error_handler;
+        }
       }
       continue;
     }
