@@ -50,6 +50,12 @@ Dependencies may be over-approximated when multiple program units are present in
 
 - Intel Fortran style submodule dependencies. That is, `submodule (a) b` will not depend on `a.mod`.
 
+## Prebuilt binaries
+
+Prebuilt binaries are available in the project releases. You can download `FortranDep` and `FortranDepCore.x` directly and use them without building. May require `chmod +x`.
+
+As with the source build, both files must be co-located in the same directory to function correctly.
+
 ## Example
 
 Given,
