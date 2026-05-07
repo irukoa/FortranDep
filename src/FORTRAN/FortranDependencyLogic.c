@@ -5,17 +5,15 @@ size_t FDEP_StatementListIntoDependencyTree(
     FDEP_Target                     ***TargetList,
     const FDEP_Statement *const *const StatementList,
     const size_t                       StatementCount,
-    const bool                         StrictMode,
     FDEP_ErrorCode                    *FailByCaller) {
   FDEP_ErrorCode ErrorCode   = NO_ERROR;
   size_t         TargetCount = 0;
   void          *TmpTargetList;
-  size_t         i, j;
+  size_t         i;
   bool           DefinesModule, DefinesSubmodule, UsesModule;
   size_t         IndexKeyword, IndexName;
   char          *String = NULL;
   size_t         AncestorCount;
-  bool           Defined;
 
   if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
@@ -47,7 +45,7 @@ size_t FDEP_StatementListIntoDependencyTree(
 
   // The first dependency is always the source file.
   (void)FDEP_AddDependencyToTarget(FDEP_SOURCE_NAME,
-                                   (FDEP_ObjType)FDEP_OBJ_SOURCE,
+                                   (FDEP_ObjType)FDEP_OBJ_SOURCE, false,
                                    &((*TargetList)[0]), &ErrorCode);
   if (ErrorCode != NO_ERROR) {
     goto error_handler;
@@ -77,19 +75,17 @@ size_t FDEP_StatementListIntoDependencyTree(
 
       // The module target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
-          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
+          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE, false,
           &((*TargetList)[TargetCount - 1]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
-      if (StrictMode) {
-        // The object target depends on the module file.
-        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
-                                         (FDEP_ObjType)FDEP_OBJ_MODULE,
-                                         &((*TargetList)[0]), &ErrorCode);
-        if (ErrorCode != NO_ERROR) {
-          goto error_handler;
-        }
+      // The object target depends on the module file.
+      (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
+                                       (FDEP_ObjType)FDEP_OBJ_MODULE, false,
+                                       &((*TargetList)[0]), &ErrorCode);
+      if (ErrorCode != NO_ERROR) {
+        goto error_handler;
       }
       continue;
     }
@@ -130,7 +126,7 @@ size_t FDEP_StatementListIntoDependencyTree(
 
       // The submodule target depends on the source file.
       (void)FDEP_AddDependencyToTarget(
-          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE,
+          FDEP_SOURCE_NAME, (FDEP_ObjType)FDEP_OBJ_SOURCE, false,
           &((*TargetList)[TargetCount - 1]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
@@ -159,45 +155,26 @@ size_t FDEP_StatementListIntoDependencyTree(
         }
         (void)strcpy(String, StatementList[i]->TokenList[IndexKeyword + 1]);
       }
-      Defined = false;
-      // Check if the program unit lives in the same file.
-      if (!StrictMode) {
-        for (j = 0; j < TargetCount - 1; j++) {
-          if ((strcmp(String, ((*TargetList)[j])->Name) == 0) &&
-              ((((*TargetList)[j])->Type == FDEP_OBJ_MODULE) ||
-               (((*TargetList)[j])->Type == FDEP_OBJ_SUBMODULE))) {
-            Defined = true;
-            break;
-          }
-        }
-      }
-      if (!Defined) {
-        (void)FDEP_AddDependencyToTarget(
-            String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
-            &((*TargetList)[TargetCount - 1]), &ErrorCode);
-      }
+      (void)FDEP_AddDependencyToTarget(String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
+                                       false, &((*TargetList)[TargetCount - 1]),
+                                       &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
       // The object target depends on the ancestor (sub)module file.
-      if (!Defined) {
-        (void)FDEP_AddDependencyToTarget(String,
-                                         (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
-                                         &((*TargetList)[0]), &ErrorCode);
-      }
+      (void)FDEP_AddDependencyToTarget(String, (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
+                                       false, &((*TargetList)[0]), &ErrorCode);
       if (ErrorCode != NO_ERROR) {
         goto error_handler;
       }
       free(String);
       String = NULL;
-      if (StrictMode) {
-        // The object target depends on the submodule file itself.
-        (void)FDEP_AddDependencyToTarget((*TargetList)[TargetCount - 1]->Name,
-                                         (FDEP_ObjType)FDEP_OBJ_SUBMODULE,
-                                         &((*TargetList)[0]), &ErrorCode);
-        if (ErrorCode != NO_ERROR) {
-          goto error_handler;
-        }
+      // The object target depends on the submodule file itself.
+      (void)FDEP_AddDependencyToTarget((*TargetList)[TargetCount - 1]->Name,
+                                       (FDEP_ObjType)FDEP_OBJ_SUBMODULE, false,
+                                       &((*TargetList)[0]), &ErrorCode);
+      if (ErrorCode != NO_ERROR) {
+        goto error_handler;
       }
       continue;
     }
@@ -206,34 +183,18 @@ size_t FDEP_StatementListIntoDependencyTree(
                                                   &IndexKeyword, &IndexName);
     if ((UsesModule) && (IndexName < StatementList[i]->TokenCount)) {
 
-      Defined = false;
-      // Check if the program unit lives in the same file.
-      if (!StrictMode) {
-        for (j = 0; j < TargetCount; j++) {
-          if ((strcmp(StatementList[i]->TokenList[IndexName],
-                      ((*TargetList)[j])->Name) == 0) &&
-              ((((*TargetList)[j])->Type == FDEP_OBJ_MODULE))) {
-            Defined = true;
-            break;
-          }
-        }
+      // Current owner and object target get a module dependency.
+      (void)FDEP_AddDependencyToTarget(
+          StatementList[i]->TokenList[IndexName], (FDEP_ObjType)FDEP_OBJ_MODULE,
+          false, &((*TargetList)[TargetCount - 1]), &ErrorCode);
+      if (ErrorCode != NO_ERROR) {
+        goto error_handler;
       }
-
-      if (!Defined) {
-        // Current owner and object target get a module dependency.
-        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
-                                         (FDEP_ObjType)FDEP_OBJ_MODULE,
-                                         &((*TargetList)[TargetCount - 1]),
-                                         &ErrorCode);
-        if (ErrorCode != NO_ERROR) {
-          goto error_handler;
-        }
-        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
-                                         (FDEP_ObjType)FDEP_OBJ_MODULE,
-                                         &((*TargetList)[0]), &ErrorCode);
-        if (ErrorCode != NO_ERROR) {
-          goto error_handler;
-        }
+      (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
+                                       (FDEP_ObjType)FDEP_OBJ_MODULE, false,
+                                       &((*TargetList)[0]), &ErrorCode);
+      if (ErrorCode != NO_ERROR) {
+        goto error_handler;
       }
       continue;
     }
@@ -249,4 +210,50 @@ error_handler:
   }
   FDEP_API_ERROR(ErrorCode);
   abort();
+}
+
+void FDEP_VerifyCompilationUnits(FDEP_Target ***TargetList,
+                                 const size_t   TargetCount) {
+  size_t i, j, k;
+  bool   ModuleTarget, ModuleDependency;
+  bool   SubModuleTarget, SubModuleDependency;
+
+  if (!TargetList || !(*TargetList)) {
+    return;
+  }
+
+  // For each dependency.
+  for (i = 0; i < TargetCount; i++) {
+    for (j = 0; j < (*TargetList)[i]->DependencyCount; j++) {
+      // For each target.
+      for (k = 0; k < TargetCount; k++) {
+        if (0 == strcmp((*TargetList)[k]->Name,
+                        (*TargetList)[i]->DependencyList[j]->Name)) {
+          ModuleTarget =
+              ((*TargetList)[k]->Type == (FDEP_ObjType)FDEP_OBJ_MODULE);
+          ModuleDependency = ((*TargetList)[i]->DependencyList[j]->Type ==
+                              (FDEP_ObjType)FDEP_OBJ_MODULE);
+          SubModuleTarget =
+              ((*TargetList)[k]->Type == (FDEP_ObjType)FDEP_OBJ_SUBMODULE);
+          SubModuleDependency = ((*TargetList)[i]->DependencyList[j]->Type ==
+                                 (FDEP_ObjType)FDEP_OBJ_SUBMODULE);
+
+          if (ModuleTarget && ModuleDependency) {
+            (*TargetList)[i]->DependencyList[j]->InCompilationUnit = true;
+            break;
+          }
+
+          if (ModuleTarget && SubModuleDependency) {
+            (*TargetList)[i]->DependencyList[j]->InCompilationUnit = true;
+            break;
+          }
+
+          if (SubModuleTarget && SubModuleDependency) {
+            (*TargetList)[i]->DependencyList[j]->InCompilationUnit = true;
+            break;
+          }
+        }
+      }
+    }
+  }
 }

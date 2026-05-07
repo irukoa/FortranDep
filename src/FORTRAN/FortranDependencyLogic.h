@@ -44,8 +44,6 @@ typedef enum {
  * @param[in] StatementCount
  *     Number of elements in StatementList.
  *
- * @param[in] StrictMode
- *     If TRUE, the object file depends on module files.
  *
  * @param[out] FailByCaller
  *     Optional pointer to receive an error code. If NULL, errors are handled
@@ -77,7 +75,43 @@ size_t FDEP_StatementListIntoDependencyTree(
     FDEP_Target                     ***TargetList,
     const FDEP_Statement *const *const StatementList,
     const size_t                       StatementCount,
-    const bool                         StrictMode,
     FDEP_ErrorCode                    *FailByCaller);
+
+/**
+ * @brief Verifies and updates compilation unit relationships for dependencies.
+ *
+ * @details
+ * Examines the list of targets and their associated dependencies and updates
+ * the 'InCompilationUnit' attribute for each dependency according to
+ * compilation rules.
+ *
+ * This function encodes Fortran-specific semantics that determine whether
+ * a dependency belongs to the same compilation unit.
+ *
+ * The TargetList is modified in place; no memory allocation or deallocation
+ * is performed by this function.
+ *
+ * @param[in,out] TargetList
+ *     Pointer to an array of FDEP_Target pointers whose dependency objects
+ *     will be examined and updated.
+ *
+ * @param[in] TargetCount
+ *     Number of elements in TargetList.
+ *
+ * @note
+ * - This function does not create or destroy targets or dependencies.
+ * - It must be called after the dependency tree has been constructed.
+ *
+ * @warning
+ * - TargetList must reference valid, fully initialized FDEP_Target objects.
+ * - Undefined behavior may occur if called with an inconsistent dependency
+ *   graph.
+ *
+ * @see FDEP_Target
+ * @see FDEP_Dependency
+ * @see FDEP_StatementListIntoDependencyTree
+ */
+void FDEP_VerifyCompilationUnits(FDEP_Target ***TargetList,
+                                 const size_t   TargetCount);
 
 #endif

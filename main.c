@@ -11,6 +11,7 @@ int main(const int         argc,
   size_t           TargetCount;
   size_t           i, j;
   bool             StrictMode = true;
+  size_t           ActualDependencyCount, RollingDependencyCount;
 
   if (argc > 1) {
     if (strcmp(argv[1], "-l") == 0) {
@@ -24,7 +25,11 @@ int main(const int         argc,
 
   TargetCount = FDEP_StatementListIntoDependencyTree(
       &TargetList, (const FDEP_Statement *const *const)StatementList,
-      StatementCount, StrictMode, NULL);
+      StatementCount, NULL);
+
+  if (!StrictMode) {
+    FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
+  }
 
   for (i = 0; i < TargetCount; i++) {
 
@@ -48,30 +53,42 @@ int main(const int         argc,
       (void)FDEP_ApiFprintf(stdout, "\n");
     }
 
+    ActualDependencyCount = 0;
     for (j = 0; j < TargetList[i]->DependencyCount; j++) {
-
-      switch (TargetList[i]->DependencyList[j]->Type) {
-      case FDEP_OBJ_SOURCE:
-        (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SOURCE_NAME);
-        break;
-      case FDEP_OBJ_MODULE:
-        (void)FDEP_ApiFprintf(stdout, "  %s.%s",
-                              TargetList[i]->DependencyList[j]->Name,
-                              FDEP_MODULE_SUFFIX);
-        break;
-      case FDEP_OBJ_SUBMODULE:
-        (void)FDEP_ApiFprintf(stdout, "  %s.%s",
-                              TargetList[i]->DependencyList[j]->Name,
-                              FDEP_SUBMODULE_SUFFIX);
-        break;
-      default:
-        continue;
+      if (!TargetList[i]->DependencyList[j]->InCompilationUnit) {
+        ActualDependencyCount++;
       }
+    }
 
-      if (j != TargetList[i]->DependencyCount - 1) {
-        (void)FDEP_ApiFprintf(stdout, "  \\\n");
-      } else {
-        (void)FDEP_ApiFprintf(stdout, "\n");
+    RollingDependencyCount = 0;
+    for (j = 0; j < TargetList[i]->DependencyCount; j++) {
+      if (!TargetList[i]->DependencyList[j]->InCompilationUnit) {
+
+        switch (TargetList[i]->DependencyList[j]->Type) {
+        case FDEP_OBJ_SOURCE:
+          (void)FDEP_ApiFprintf(stdout, "  %s", FDEP_SOURCE_NAME);
+          break;
+        case FDEP_OBJ_MODULE:
+          (void)FDEP_ApiFprintf(stdout, "  %s.%s",
+                                TargetList[i]->DependencyList[j]->Name,
+                                FDEP_MODULE_SUFFIX);
+          break;
+        case FDEP_OBJ_SUBMODULE:
+          (void)FDEP_ApiFprintf(stdout, "  %s.%s",
+                                TargetList[i]->DependencyList[j]->Name,
+                                FDEP_SUBMODULE_SUFFIX);
+          break;
+        default:
+          continue;
+        }
+        RollingDependencyCount++;
+
+        if (RollingDependencyCount != ActualDependencyCount) {
+          (void)FDEP_ApiFprintf(stdout, "  \\\n");
+        } else {
+          (void)FDEP_ApiFprintf(stdout, "\n");
+          break;
+        }
       }
     }
   }
