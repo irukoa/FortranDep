@@ -1,4 +1,5 @@
 #!/bin/bash
+Version=v1.2.0
 ScriptDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FortranDepCore="$ScriptDir/FortranDepCore.x"
 if [ ! -x "$FortranDepCore" ]; then
@@ -8,12 +9,13 @@ fi
 
 Usage() {
 	echo "Generates make-compatible dependency rules for Fortran source files." >&2
-	echo "Usage: "$0" [-p] [-d] [-l] <file> [GccArgs]" >&2
+	echo "  Version: "$Version"." >&2
+	echo "Usage: "$0" [-p] [-d] [-l] [-h] <file> [GccArgs]" >&2
 	echo "  -p: Add phony targets for each #include dependency." >&2
 	echo "  -d: Add a dependency target for the source file (depends on the source and all included files)." >&2
 	echo "  -l: Enable lax mode (object files depend on program units defined within them)." >&2
+	echo "  -h: Print this help and exit." >&2
 	echo "  GccArgs: list of arguments to pass to gcc. Applied when preprocessing." >&2
-	exit 1
 }
 
 MergeIncludes() {
@@ -58,15 +60,18 @@ MergeIncludes() {
 PhonyIncs=false
 DepTarget=false
 Lax=false
+Help=false
 
-while getopts ":pdl" opt; do
+while getopts ":pdlh" opt; do
 	case $opt in
 	p) PhonyIncs=true ;;
 	d) DepTarget=true ;;
 	l) Lax=true ;;
+	h) Help=true ;;
 	\?)
 		echo "Invalid option: -$OPTARG" >&2
 		Usage
+		exit 1
 		;;
 	esac
 done
@@ -76,8 +81,14 @@ shift $((OPTIND - 1))
 File="$1"
 shift 1
 
+if [ "$Help" = true ]; then
+	Usage
+	exit 0
+fi
+
 if [ -z "$File" ]; then
 	Usage
+	exit 1
 fi
 
 Basename=$(echo "$File" | sed "s|.*/||" | sed "s|\(.*\)\..*|\1|")
