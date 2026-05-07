@@ -10,12 +10,12 @@ int main(const int         argc,
   FDEP_Target    **TargetList = NULL;
   size_t           TargetCount;
   size_t           i, j;
-  bool             StrictMode = true;
+  bool             LaxMode = false;
   size_t           ActualDependencyCount, RollingDependencyCount;
 
   if (argc > 1) {
     if (strcmp(argv[1], "-l") == 0) {
-      StrictMode = false;
+      LaxMode = true;
     }
   }
 
@@ -27,7 +27,7 @@ int main(const int         argc,
       &TargetList, (const FDEP_Statement *const *const)StatementList,
       StatementCount, NULL);
 
-  if (!StrictMode) {
+  if (!LaxMode) {
     FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
   }
 

@@ -11,7 +11,7 @@ Usage() {
 	echo "Usage: "$0" [-p] [-d] [-l] <file> [GccArgs]" >&2
 	echo "  -p: Add phony targets for each #include dependency." >&2
 	echo "  -d: Add a dependency target for the source file (depends on the source and all included files)." >&2
-	echo "  -l: Enable lax mode (object files do not depend on program units defined within them)." >&2
+	echo "  -l: Enable lax mode (object files depend on program units defined within them)." >&2
 	echo "  GccArgs: list of arguments to pass to gcc. Applied when preprocessing." >&2
 	exit 1
 }
@@ -57,13 +57,13 @@ MergeIncludes() {
 
 PhonyIncs=false
 DepTarget=false
-Strict=true
+Lax=false
 
 while getopts ":pdl" opt; do
 	case $opt in
 	p) PhonyIncs=true ;;
 	d) DepTarget=true ;;
-	l) Strict=false ;;
+	l) Lax=true ;;
 	\?)
 		echo "Invalid option: -$OPTARG" >&2
 		Usage
@@ -116,10 +116,10 @@ IncludeFiles="$(echo "${DummyList}" | sed "s|:||g")"
 # Fortran part.
 
 # Get Fortran dependencies.
-if [ "$Strict" = true ]; then
-	FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutput")
-else
+if [ "$Lax" = true ]; then
 	FortranDeps=$(eval "$FortranDepCore -l" <<<"$PreprocessedOutput")
+else
+	FortranDeps=$(eval "$FortranDepCore" <<<"$PreprocessedOutput")
 fi
 if [ $? -ne 0 ]; then
 	exit 1
