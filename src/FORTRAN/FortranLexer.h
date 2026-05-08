@@ -146,8 +146,8 @@ bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
  * true if module or submodule ending is found, false otherwise.
  *
  * @note
- * - Cannot determine wether the plain 'end' statement ends a program unit. Will
- * return false in that case.
+ * - Cannot determine whether the plain 'end' statement ends a program unit.
+ * Will return false in that case.
  *
  * @warning
  * - Statement must be a valid, initialized FDEP_Statement.

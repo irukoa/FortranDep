@@ -38,7 +38,7 @@ Dependencies may be over-approximated when multiple program units are present in
 
 - We only guarantee correct results for valid Fortran.
 
-- CPP `#include` directives (searched with `-I.`). Ownership model: all targets in the file depend on all included files.
+- CPP `#include` directives. Ownership model: all targets in the file depend on all included files.
 
 - Recursive include resolution.
 
@@ -61,7 +61,7 @@ As with the source build, both files must be co-located in the same directory to
 ## Example
 
 Given,
-```
+```fortran
 !file.f90
 module b
 ! [...]
@@ -77,14 +77,55 @@ end module a
 produces:
 ```
 file.o:  file.f90  \
-  b.mod  \
-  a.mod  \
   c.mod  \
   d.inc
 b.mod:  file.f90  \
   d.inc
 a.mod:  file.f90  \
-  b.mod  \
   c.mod  \
   d.inc
 ```
+
+## Known overshoots
+
+<details>
+
+`FortranDep` may occasionally report redundant dependencies (overshoots) when multiple program units are present in the same source file.
+
+This happens because `FortranDep` is intentionally implemented as a lightweight single-pass lexer. In valid Fortran, standalone `end` statements are ambiguous: the lexer cannot always determine whether they terminate a `module`, `submodule`, or another program unit such as a procedure.
+
+To reduce overshoots, `FortranDep` checks whether an `end` statement is followed by `module` or `submodule`. In those cases, dependency ownership is correctly returned to the object file.
+
+For example:
+```fortran
+module a
+end module
+subroutine b
+  use c
+end
+```
+produces:
+```
+#OBJECT#:  #SOURCEFILE#  \
+  c.mod
+a.mod:  #SOURCEFILE#
+```
+while:
+```fortran
+module a
+end
+subroutine b
+end
+```
+produces:
+```
+#OBJECT#:  #SOURCEFILE#  \
+  c.mod
+a.mod:  #SOURCEFILE#  \
+  c.mod
+```
+In the second case, `c.mod` is conservatively attributed to both the object file and `a.mod`.
+
+If avoiding these overshoots matters for your workflow, it is recommended to explicitly label `module` and `submodule` termination statements (`end module`, `end submodule`).
+
+</details>
