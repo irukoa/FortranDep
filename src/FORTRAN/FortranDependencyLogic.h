@@ -44,7 +44,6 @@ typedef enum {
  * @param[in] StatementCount
  *     Number of elements in StatementList.
  *
- *
  * @param[out] FailByCaller
  *     Optional pointer to receive an error code. If NULL, errors are handled
  *     internally via FDEP_API_ERROR.

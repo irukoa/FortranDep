@@ -128,3 +128,8 @@ bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
   }
   return false;
 }
+
+void FDEP_UpdateNestingLevel(const FDEP_Statement *const Statement,
+                             int                        *NestingLevel) {
+  *NestingLevel = 1;
+}

@@ -91,6 +91,9 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
  *
  * @note
  * - Output parameters are only valid if the function returns true.
+ *
+ * @warning
+ * - Statement must be a valid, initialized FDEP_Statement.
  */
 bool FDEP_StatementContainsDefinedSubModule(
     const FDEP_Statement *const Statement,
@@ -120,9 +123,30 @@ bool FDEP_StatementContainsDefinedSubModule(
  *
  * @note
  * - Output parameters are only valid if the function returns true.
+ *
+ * @warning
+ * - Statement must be a valid, initialized FDEP_Statement.
  */
 bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
                                       size_t                     *IndexUse,
                                       size_t                     *IndexName);
+
+/**
+ * @brief Updates the nesting of Fortran block constructs.
+ *
+ * @details
+ * Tracks the nesting of Fortran block constructs within program units, updating
+ * the nesting level accordingly: +1 when a block is opened and -1 when a block
+ * is closed.
+ *
+ * @param[in] Statement
+ *     Tokenized statement to analyze.
+ *
+ * @param[out] NestingLevel
+ *     Receives the updated nesting level after processing a statement.
+ *
+ */
+void FDEP_UpdateNestingLevel(const FDEP_Statement *const Statement,
+                             int                        *NestingLevel);
 
 #endif
