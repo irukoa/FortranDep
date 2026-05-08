@@ -40,6 +40,7 @@ ifneq ($(filter-out clean, $(MAKECMDGOALS)), )
 endif
 
 $(OBJ)/%.o: $(SRC)/%.F90 | $(OBJ)
+		$(RM) $(TRASH)/*
 		$(FC) $(CFLAGS) -J$(TRASH) -I$(OBJ) $(INC) -c $< -o $@
 $(OBJ)/%.mod: $(SRC)/%.F90 | $(OBJ)
 		$(RM) $@
