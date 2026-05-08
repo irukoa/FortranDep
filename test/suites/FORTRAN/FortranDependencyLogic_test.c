@@ -685,6 +685,43 @@ TEST_F(FDEP_Standard,
   FDEP_FreeStatementList(&StatementList, StatementCount);
 }
 
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementListIntoDependencyTreeError19) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  const char                Contents[] = "module a\n"
+                                         "  use b\n"
+                                         "end module a\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  FDEP_ResetReallocFailCfg();
+  FDEP_SetReallocFailCfg(6);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(TargetCount == 0);
+  ASSERT(ErrorCode == ERROR_ALLOC);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+}
+
 TEST_SUITE(FortranDependencyLogicErrorSuite,
            TestFDEP_StatementListIntoDependencyTreeError1,
            TestFDEP_StatementListIntoDependencyTreeError2,
@@ -703,7 +740,8 @@ TEST_SUITE(FortranDependencyLogicErrorSuite,
            TestFDEP_StatementListIntoDependencyTreeError15,
            TestFDEP_StatementListIntoDependencyTreeError16,
            TestFDEP_StatementListIntoDependencyTreeError17,
-           TestFDEP_StatementListIntoDependencyTreeError18);
+           TestFDEP_StatementListIntoDependencyTreeError18,
+           TestFDEP_StatementListIntoDependencyTreeError19);
 
 TEST_F(FDEP_Standard,
        TestFDEP_VerifyCompilationUnits1) {

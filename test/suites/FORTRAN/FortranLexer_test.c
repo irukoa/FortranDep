@@ -281,15 +281,130 @@ TEST_F(FDEP_Standard,
   bool           Result;
   size_t         IndexUse, IndexName;
   FDEP_Statement EmptyStatement;
+  int            DummyVar = 5;
   // NULL statement.
   Result = FDEP_StatementContainsUsedModule(NULL, &IndexUse, &IndexName);
   ASSERT(!Result);
   // Empty token list.
-  EmptyStatement.TokenList  = NULL;
+  EmptyStatement.TokenList  = (char **)((void *)&DummyVar);
   EmptyStatement.TokenCount = 0;
   Result =
       FDEP_StatementContainsUsedModule(&EmptyStatement, &IndexUse, &IndexName);
   ASSERT(!Result);
+  EmptyStatement.TokenList  = NULL;
+  EmptyStatement.TokenCount = 1;
+  Result =
+      FDEP_StatementContainsUsedModule(&EmptyStatement, &IndexUse, &IndexName);
+  ASSERT(!Result);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementEndsProgramUnitNullGuard) {
+  (void)ContextData;
+  bool           Result;
+  FDEP_Statement EmptyStatement;
+  int            DummyVar = 5;
+  // NULL statement.
+  Result = FDEP_StatementEndsProgramUnit(NULL);
+  ASSERT(!Result);
+  // Empty token list.
+  EmptyStatement.TokenList  = (char **)((void *)&DummyVar);
+  EmptyStatement.TokenCount = 0;
+  Result                    = FDEP_StatementEndsProgramUnit(&EmptyStatement);
+  ASSERT(!Result);
+  EmptyStatement.TokenList  = NULL;
+  EmptyStatement.TokenCount = 1;
+  Result                    = FDEP_StatementEndsProgramUnit(&EmptyStatement);
+  ASSERT(!Result);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementContainsEndModule) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  const char     String[]  = "endmodule";
+  FDEP_Statement Statement;
+  bool           Result;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran                  = true;
+    Statement.TokenCount = FDEP_Tokenize(String, FDEP_FORTRAN_DELIMITERS,
+                                         &(Statement.TokenList), &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran    = false;
+  Result = FDEP_StatementEndsProgramUnit(&Statement);
+  ASSERT(Result);
+  FDEP_FreeTokenList(&(Statement.TokenList), Statement.TokenCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementContainsEnd_Module) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  const char     String[]  = "end module";
+  FDEP_Statement Statement;
+  bool           Result;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran                  = true;
+    Statement.TokenCount = FDEP_Tokenize(String, FDEP_FORTRAN_DELIMITERS,
+                                         &(Statement.TokenList), &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran    = false;
+  Result = FDEP_StatementEndsProgramUnit(&Statement);
+  ASSERT(Result);
+  FDEP_FreeTokenList(&(Statement.TokenList), Statement.TokenCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementContainsEndSubModule) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  const char     String[]  = "endsubmodule";
+  FDEP_Statement Statement;
+  bool           Result;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran                  = true;
+    Statement.TokenCount = FDEP_Tokenize(String, FDEP_FORTRAN_DELIMITERS,
+                                         &(Statement.TokenList), &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran    = false;
+  Result = FDEP_StatementEndsProgramUnit(&Statement);
+  ASSERT(Result);
+  FDEP_FreeTokenList(&(Statement.TokenList), Statement.TokenCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       TestFDEP_StatementContainsEnd_SubModule) {
+  (void)ContextData;
+  bool           Ran       = false;
+  FDEP_ErrorCode ErrorCode = NO_ERROR;
+  const char     String[]  = "end submodule";
+  FDEP_Statement Statement;
+  bool           Result;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran                  = true;
+    Statement.TokenCount = FDEP_Tokenize(String, FDEP_FORTRAN_DELIMITERS,
+                                         &(Statement.TokenList), &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran    = false;
+  Result = FDEP_StatementEndsProgramUnit(&Statement);
+  ASSERT(Result);
+  FDEP_FreeTokenList(&(Statement.TokenList), Statement.TokenCount);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
 
@@ -303,4 +418,9 @@ TEST_SUITE(FortranLexerSuite,
            TestFDEP_StatementContainsUsedModuleNominal,
            TestFDEP_StatementContainsUsedModuleNonIntrinsic,
            TestFDEP_StatementContainsUsedModuleIntrinsic,
-           TestFDEP_StatementContainsUsedModuleNullGuard);
+           TestFDEP_StatementContainsUsedModuleNullGuard,
+           TestFDEP_StatementEndsProgramUnitNullGuard,
+           TestFDEP_StatementContainsEndModule,
+           TestFDEP_StatementContainsEnd_Module,
+           TestFDEP_StatementContainsEndSubModule,
+           TestFDEP_StatementContainsEnd_SubModule);

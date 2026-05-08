@@ -1364,6 +1364,77 @@ TEST_F(FDEP_Standard,
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
 }
 
+TEST_F(FDEP_Standard,
+       Functional23) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
+  const char                Contents[] = "module a\n"
+                                         "end module\n"
+                                         "subroutine b()\n"
+                                         "use c\n"
+                                         "end\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
+
+  ASSERT(TargetCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
+  ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[2]->Name, "c"));
+  ASSERT(TargetList[0]->DependencyList[2]->Type == FDEP_OBJ_MODULE);
+
+  ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
+  ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[1]->DependencyCount; i++) {
+    if (!TargetList[1]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 1);
+  ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[1]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+  // No overshoot due to "end module" being parsed. In Functional22, only "end"
+  // was parsed.
+
+  FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
 TEST_SUITE(FunctionalSuite,
            Functional1,
            Functional2,
@@ -1386,4 +1457,5 @@ TEST_SUITE(FunctionalSuite,
            Functional19,
            Functional20,
            Functional21,
-           Functional22);
+           Functional22,
+           Functional23);

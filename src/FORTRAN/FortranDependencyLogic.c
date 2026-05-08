@@ -6,14 +6,15 @@ size_t FDEP_StatementListIntoDependencyTree(
     const FDEP_Statement *const *const StatementList,
     const size_t                       StatementCount,
     FDEP_ErrorCode                    *FailByCaller) {
-  FDEP_ErrorCode ErrorCode   = NO_ERROR;
-  size_t         TargetCount = 0;
-  void          *TmpTargetList;
-  size_t         i;
-  bool           DefinesModule, DefinesSubmodule, UsesModule;
-  size_t         IndexKeyword, IndexName;
-  char          *String = NULL;
-  size_t         AncestorCount;
+  FDEP_ErrorCode      ErrorCode   = NO_ERROR;
+  size_t              TargetCount = 0;
+  void               *TmpTargetList;
+  size_t              i;
+  bool                DefinesModule, DefinesSubmodule, UsesModule;
+  size_t              IndexKeyword, IndexName;
+  char               *String = NULL;
+  size_t              AncestorCount;
+  FDEP_FortranObjType CurrentOwner = FDEP_OBJ_OBJECT;
 
   if (!TargetList || !StatementList) {
     ErrorCode = ERROR_INPUT;
@@ -53,10 +54,15 @@ size_t FDEP_StatementListIntoDependencyTree(
 
   for (i = 0; i < StatementCount; i++) {
 
+    if (FDEP_StatementEndsProgramUnit(StatementList[i])) {
+      CurrentOwner = FDEP_OBJ_OBJECT;
+    }
+
     DefinesModule = FDEP_StatementContainsDefinedModule(
         StatementList[i], &IndexKeyword, &IndexName);
     if ((DefinesModule) && (IndexName < StatementList[i]->TokenCount)) {
       // New module target.
+      CurrentOwner  = FDEP_OBJ_MODULE;
       TmpTargetList = NULL;
       TmpTargetList = (FDEP_Target **)FDEP_ApiRealloc(
           (void *)(*TargetList), sizeof(FDEP_Target *) * (TargetCount + 1));
@@ -95,6 +101,7 @@ size_t FDEP_StatementListIntoDependencyTree(
     if ((DefinesSubmodule) && (IndexName < StatementList[i]->TokenCount) &&
         (IndexKeyword < IndexName - 1)) {
       // New submodule target.
+      CurrentOwner  = FDEP_OBJ_SUBMODULE;
       TmpTargetList = NULL;
       TmpTargetList = (FDEP_Target **)FDEP_ApiRealloc(
           (void *)(*TargetList), sizeof(FDEP_Target *) * (TargetCount + 1));
@@ -184,11 +191,14 @@ size_t FDEP_StatementListIntoDependencyTree(
     if ((UsesModule) && (IndexName < StatementList[i]->TokenCount)) {
 
       // Current owner and object target get a module dependency.
-      (void)FDEP_AddDependencyToTarget(
-          StatementList[i]->TokenList[IndexName], (FDEP_ObjType)FDEP_OBJ_MODULE,
-          false, &((*TargetList)[TargetCount - 1]), &ErrorCode);
-      if (ErrorCode != NO_ERROR) {
-        goto error_handler;
+      if (CurrentOwner != FDEP_OBJ_OBJECT) {
+        (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
+                                         (FDEP_ObjType)FDEP_OBJ_MODULE, false,
+                                         &((*TargetList)[TargetCount - 1]),
+                                         &ErrorCode);
+        if (ErrorCode != NO_ERROR) {
+          goto error_handler;
+        }
       }
       (void)FDEP_AddDependencyToTarget(StatementList[i]->TokenList[IndexName],
                                        (FDEP_ObjType)FDEP_OBJ_MODULE, false,
