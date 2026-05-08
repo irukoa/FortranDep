@@ -22,7 +22,7 @@ TEST_F(FDEP_Standard,
   // Add a dependency.
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    FDEP_AddDependencyToTarget("NewDep1", 1, &Target, &ErrorCode);
+    FDEP_AddDependencyToTarget("NewDep1", 1, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   Ran = false;
@@ -34,7 +34,7 @@ TEST_F(FDEP_Standard,
   // Add another dependency.
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    FDEP_AddDependencyToTarget("NewDep2", 2, &Target, &ErrorCode);
+    FDEP_AddDependencyToTarget("NewDep2", 2, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   Ran = false;
@@ -45,7 +45,7 @@ TEST_F(FDEP_Standard,
   // Add an already present dependency.
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    FDEP_AddDependencyToTarget("NewDep1", 1, &Target, &ErrorCode);
+    FDEP_AddDependencyToTarget("NewDep1", 1, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   Ran = false;
@@ -54,7 +54,7 @@ TEST_F(FDEP_Standard,
   // Add a dependency with the same characteristics as the target.
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    FDEP_AddDependencyToTarget("NewTarget", 0, &Target, &ErrorCode);
+    FDEP_AddDependencyToTarget("NewTarget", 0, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   Ran = false;
@@ -76,7 +76,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetMallocFailCfg(1);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran        = true;
-    Dependency = FDEP_NewDependency("a", 1, &ErrorCode);
+    Dependency = FDEP_NewDependency("a", 1, false, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_ALLOC);
@@ -85,7 +85,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetMallocFailCfg(2);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran        = true;
-    Dependency = FDEP_NewDependency("a", 1, &ErrorCode);
+    Dependency = FDEP_NewDependency("a", 1, false, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_ALLOC);
@@ -94,7 +94,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetMallocFailCfg(1);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran        = true;
-    Dependency = FDEP_NewDependency("a", 1, NULL);
+    Dependency = FDEP_NewDependency("a", 1, false, NULL);
   }
   ASSERT_X(Ran);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 1);
@@ -148,14 +148,14 @@ TEST_F(FDEP_Standard,
   // Input errors.
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    (void)FDEP_AddDependencyToTarget("b", 2, NULL, &ErrorCode);
+    (void)FDEP_AddDependencyToTarget("b", 2, false, NULL, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_INPUT);
   Ran = false;
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    (void)FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+    (void)FDEP_AddDependencyToTarget("b", 2, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_INPUT);
@@ -176,7 +176,7 @@ TEST_F(FDEP_Standard,
   Ran = false;
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran      = true;
-    DepAdded = FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+    DepAdded = FDEP_AddDependencyToTarget("b", 2, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -185,7 +185,7 @@ TEST_F(FDEP_Standard,
   Ran = false;
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran      = true;
-    DepAdded = FDEP_AddDependencyToTarget("a", 1, &Target, &ErrorCode);
+    DepAdded = FDEP_AddDependencyToTarget("a", 1, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -195,7 +195,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetReallocFailCfg(1);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran      = true;
-    DepAdded = FDEP_AddDependencyToTarget("c", 3, &Target, &ErrorCode);
+    DepAdded = FDEP_AddDependencyToTarget("c", 3, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_ALLOC);
@@ -222,7 +222,7 @@ TEST_F(FDEP_Standard,
   Ran = false;
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran      = true;
-    DepAdded = FDEP_AddDependencyToTarget("b", 2, &Target, &ErrorCode);
+    DepAdded = FDEP_AddDependencyToTarget("b", 2, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -232,7 +232,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetMallocFailCfg(1);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran      = true;
-    DepAdded = FDEP_AddDependencyToTarget("c", 3, &Target, &ErrorCode);
+    DepAdded = FDEP_AddDependencyToTarget("c", 3, false, &Target, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == ERROR_ALLOC);
@@ -257,7 +257,7 @@ TEST_F(FDEP_Standard,
   FDEP_SetMallocFailCfg(1);
   if (setjmp(TSD_GlobJumpRef) == 0) {
     Ran = true;
-    (void)FDEP_AddDependencyToTarget("c", 3, &Target, NULL);
+    (void)FDEP_AddDependencyToTarget("c", 3, false, &Target, NULL);
   }
   ASSERT_X(Ran);
   ASSERT(FDEP_ApiError_Mock_fake.call_count == 1);

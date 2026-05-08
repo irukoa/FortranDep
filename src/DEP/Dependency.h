@@ -16,7 +16,8 @@ typedef int FDEP_ObjType;
  * @brief Represents a single dependency.
  *
  * @details
- * A dependency consists of a name and an associated object type.
+ * A dependency consists of a name, an associated object type,
+ * and a compilation unit ownership flag.
  *
  * @note
  * - Name is dynamically allocated.
@@ -26,8 +27,9 @@ typedef int FDEP_ObjType;
  * @see FDEP_FreeDependency
  */
 typedef struct _FDEP_Dependency {
-  char        *Name; /**< Null-terminated dependency name. */
-  FDEP_ObjType Type; /**< Dependency type identifier. */
+  char        *Name;              /**< Null-terminated dependency name. */
+  FDEP_ObjType Type;              /**< Dependency type identifier. */
+  bool         InCompilationUnit; /**< Dependency ownership. */
 } FDEP_Dependency;
 
 /**
@@ -71,6 +73,7 @@ void FDEP_FreeDependency(FDEP_Dependency **Dependency);
  */
 FDEP_Dependency *FDEP_NewDependency(const char *const  Name,
                                     const FDEP_ObjType Type,
+                                    const bool         InCompilationUnit,
                                     FDEP_ErrorCode    *FailByCaller);
 
 /**
@@ -159,6 +162,9 @@ FDEP_Target *FDEP_NewTarget(const char *const  Name,
  * @param[in] Type
  *     Dependency type.
  *
+ * @param[in] InCompilationUnit
+ *     Dependency ownership with respect to current compilation unit.
+ *
  * @param[in,out] Target
  *     Pointer to the target pointer to which the dependency is added.
  *
@@ -180,6 +186,7 @@ FDEP_Target *FDEP_NewTarget(const char *const  Name,
  */
 bool FDEP_AddDependencyToTarget(const char *const  Name,
                                 const FDEP_ObjType Type,
+                                const bool         InCompilationUnit,
                                 FDEP_Target      **Target,
                                 FDEP_ErrorCode    *FailByCaller);
 

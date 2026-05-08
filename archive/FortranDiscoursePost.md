@@ -26,7 +26,7 @@ submodule(e) f
   ![...]
 end
 ```
-running `FortranDep -l file.f90` produces:
+running `FortranDep file.f90` produces:
 ```shell
 file.o:  file.f90  \
   b.mod  \

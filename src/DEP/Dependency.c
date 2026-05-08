@@ -14,6 +14,7 @@ void FDEP_FreeDependency(FDEP_Dependency **Dependency) {
 
 FDEP_Dependency *FDEP_NewDependency(const char *const  Name,
                                     const FDEP_ObjType Type,
+                                    const bool         InCompilationUnit,
                                     FDEP_ErrorCode    *FailByCaller) {
   FDEP_ErrorCode   ErrorCode       = NO_ERROR;
   bool             ParentAllocated = false;
@@ -33,7 +34,8 @@ FDEP_Dependency *FDEP_NewDependency(const char *const  Name,
     goto error_handler;
   }
   (void)strcpy(Dependency->Name, Name);
-  Dependency->Type = Type;
+  Dependency->Type              = Type;
+  Dependency->InCompilationUnit = InCompilationUnit;
 
   return Dependency;
 error_handler:
@@ -105,6 +107,7 @@ error_handler:
 
 bool FDEP_AddDependencyToTarget(const char *const  Name,
                                 const FDEP_ObjType Type,
+                                const bool         InCompilationUnit,
                                 FDEP_Target      **Target,
                                 FDEP_ErrorCode    *FailByCaller) {
   FDEP_ErrorCode ErrorCode = NO_ERROR;
@@ -139,7 +142,7 @@ bool FDEP_AddDependencyToTarget(const char *const  Name,
   (*Target)->DependencyList  = (FDEP_Dependency **)TmpDependencyList;
   (*Target)->DependencyCount = NewDependencyCount;
   (*Target)->DependencyList[(*Target)->DependencyCount - 1] =
-      FDEP_NewDependency(Name, Type, &ErrorCode);
+      FDEP_NewDependency(Name, Type, InCompilationUnit, &ErrorCode);
   if (ErrorCode != NO_ERROR) {
     goto error_handler;
   }

@@ -37,7 +37,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -91,7 +91,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -149,7 +149,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -211,7 +211,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -276,7 +276,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -332,7 +332,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -390,7 +390,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -448,7 +448,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -503,7 +503,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -555,7 +555,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -610,7 +610,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -664,7 +664,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -723,7 +723,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -784,7 +784,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -841,7 +841,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -898,7 +898,7 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, true, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
@@ -934,6 +934,7 @@ TEST_F(FDEP_Standard,
   size_t                    StatementCount;
   FDEP_Target             **TargetList;
   size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
   const char                Contents[] =
       "module a; end; submodule (a) b; end; submodule (c) d; end\n";
   Data->FakeStream = PutInFakeStream(Contents);
@@ -951,19 +952,26 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, false, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
   ASSERT(TargetCount == 4);
   ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
   ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
-  ASSERT(TargetList[0]->DependencyCount == 2);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
-  ASSERT(0 == strcmp(TargetList[0]->DependencyList[1]->Name, "c"));
-  ASSERT(TargetList[0]->DependencyList[1]->Type == FDEP_OBJ_SUBMODULE);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[4]->Name, "c"));
+  ASSERT(TargetList[0]->DependencyList[4]->Type == FDEP_OBJ_SUBMODULE);
 
   ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
   ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
@@ -973,7 +981,7 @@ TEST_F(FDEP_Standard,
 
   ASSERT(0 == strcmp(TargetList[2]->Name, "a@b"));
   ASSERT(TargetList[2]->Type == FDEP_OBJ_SUBMODULE);
-  ASSERT(TargetList[2]->DependencyCount == 1);
+  ASSERT(TargetList[2]->DependencyCount == 2);
   ASSERT(0 == strcmp(TargetList[2]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[2]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
 
@@ -999,6 +1007,7 @@ TEST_F(FDEP_Standard,
   size_t                    StatementCount;
   FDEP_Target             **TargetList;
   size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
   const char Contents[] = "submodule (a) b; end; submodule (a:b) c; end\n";
   Data->FakeStream      = PutInFakeStream(Contents);
   if (setjmp(TSD_GlobJumpRef) == 0) {
@@ -1015,15 +1024,22 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, false, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
   ASSERT(TargetCount == 3);
   ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
   ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
-  ASSERT(TargetList[0]->DependencyCount == 2);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[1]->Name, "a"));
@@ -1039,7 +1055,13 @@ TEST_F(FDEP_Standard,
 
   ASSERT(0 == strcmp(TargetList[2]->Name, "a@c"));
   ASSERT(TargetList[2]->Type == FDEP_OBJ_SUBMODULE);
-  ASSERT(TargetList[2]->DependencyCount == 1);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[2]->DependencyCount; i++) {
+    if (!TargetList[2]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 1);
   ASSERT(0 == strcmp(TargetList[2]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[2]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
 
@@ -1057,6 +1079,7 @@ TEST_F(FDEP_Standard,
   size_t                    StatementCount;
   FDEP_Target             **TargetList;
   size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
   const char                Contents[] = "module a\n"
                                          "  use b\n"
                                          "  ![...]\n"
@@ -1086,19 +1109,26 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, false, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
   ASSERT(TargetCount == 4);
   ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
   ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
-  ASSERT(TargetList[0]->DependencyCount == 4);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 4);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
-  ASSERT(0 == strcmp(TargetList[0]->DependencyList[1]->Name, "b"));
-  ASSERT(TargetList[0]->DependencyList[1]->Type == FDEP_OBJ_MODULE);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[2]->Name, "b"));
+  ASSERT(TargetList[0]->DependencyList[2]->Type == FDEP_OBJ_MODULE);
 
   ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
   ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
@@ -1110,15 +1140,27 @@ TEST_F(FDEP_Standard,
 
   ASSERT(0 == strcmp(TargetList[2]->Name, "a@c"));
   ASSERT(TargetList[2]->Type == FDEP_OBJ_SUBMODULE);
-  ASSERT(TargetList[2]->DependencyCount == 2);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[2]->DependencyCount; i++) {
+    if (!TargetList[2]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
   ASSERT(0 == strcmp(TargetList[2]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[2]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
-  ASSERT(0 == strcmp(TargetList[2]->DependencyList[1]->Name, "d"));
-  ASSERT(TargetList[2]->DependencyList[1]->Type == FDEP_OBJ_MODULE);
+  ASSERT(0 == strcmp(TargetList[2]->DependencyList[2]->Name, "d"));
+  ASSERT(TargetList[2]->DependencyList[2]->Type == FDEP_OBJ_MODULE);
 
   ASSERT(0 == strcmp(TargetList[3]->Name, "e@f"));
   ASSERT(TargetList[3]->Type == FDEP_OBJ_SUBMODULE);
-  ASSERT(TargetList[3]->DependencyCount == 2);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[3]->DependencyCount; i++) {
+    if (!TargetList[3]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
   ASSERT(0 == strcmp(TargetList[3]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[3]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
   ASSERT(0 == strcmp(TargetList[3]->DependencyList[1]->Name, "e"));
@@ -1138,6 +1180,7 @@ TEST_F(FDEP_Standard,
   size_t                    StatementCount;
   FDEP_Target             **TargetList;
   size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
   const char                Contents[] = "module a; use a\n";
   Data->FakeStream                     = PutInFakeStream(Contents);
   if (setjmp(TSD_GlobJumpRef) == 0) {
@@ -1154,15 +1197,22 @@ TEST_F(FDEP_Standard,
     Ran         = true;
     TargetCount = FDEP_StatementListIntoDependencyTree(
         &TargetList, (const FDEP_Statement *const *const)StatementList,
-        StatementCount, false, &ErrorCode);
+        StatementCount, &ErrorCode);
   }
   ASSERT_X(Ran);
   ASSERT(ErrorCode == NO_ERROR);
   Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
   ASSERT(TargetCount == 2);
   ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
   ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
-  ASSERT(TargetList[0]->DependencyCount == 1);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 1);
   ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
 
@@ -1171,6 +1221,143 @@ TEST_F(FDEP_Standard,
   ASSERT(TargetList[1]->DependencyCount == 1);
   ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
   ASSERT(TargetList[1]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+
+  FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       Functional21) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
+  const char                Contents[] = "use a; use d; module a\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
+  ASSERT(TargetCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
+  ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[2]->Name, "d"));
+  ASSERT(TargetList[0]->DependencyList[2]->Type == FDEP_OBJ_MODULE);
+
+  ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
+  ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[1]->DependencyCount; i++) {
+    if (!TargetList[1]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 1);
+  ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[1]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+
+  FDEP_FreeTargetList(&TargetList, TargetCount);
+  FDEP_FreeStatementList(&StatementList, StatementCount);
+  ASSERT(FDEP_ApiError_Mock_fake.call_count == 0);
+}
+
+TEST_F(FDEP_Standard,
+       Functional22) {
+  FDEP_StandardContextData *Data      = (FDEP_StandardContextData *)ContextData;
+  bool                      Ran       = false;
+  FDEP_ErrorCode            ErrorCode = NO_ERROR;
+  FDEP_Statement          **StatementList;
+  size_t                    StatementCount;
+  FDEP_Target             **TargetList;
+  size_t                    TargetCount;
+  size_t                    ActualDependencyCount, i;
+  const char                Contents[] = "module a\n"
+                                         "end\n"
+                                         "subroutine b()\n"
+                                         "use c\n"
+                                         "end\n";
+  Data->FakeStream                     = PutInFakeStream(Contents);
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran            = true;
+    StatementCount = FDEP_TokenizeStream(
+        &StatementList, FDEP_FORTRAN_DELIMITERS, FDEP_FORTRAN_CONTINUATION,
+        FDEP_FORTRAN_SEPARATOR, Data->FakeStream, FDEP_FortranPreprocess,
+        &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  if (setjmp(TSD_GlobJumpRef) == 0) {
+    Ran         = true;
+    TargetCount = FDEP_StatementListIntoDependencyTree(
+        &TargetList, (const FDEP_Statement *const *const)StatementList,
+        StatementCount, &ErrorCode);
+  }
+  ASSERT_X(Ran);
+  ASSERT(ErrorCode == NO_ERROR);
+  Ran = false;
+  FDEP_VerifyCompilationUnits(&TargetList, TargetCount);
+
+  ASSERT(TargetCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->Name, FDEP_OBJECT_NAME));
+  ASSERT(TargetList[0]->Type == FDEP_OBJ_OBJECT);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[0]->DependencyCount; i++) {
+    if (!TargetList[0]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[0]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+  ASSERT(0 == strcmp(TargetList[0]->DependencyList[2]->Name, "c"));
+  ASSERT(TargetList[0]->DependencyList[2]->Type == FDEP_OBJ_MODULE);
+
+  ASSERT(0 == strcmp(TargetList[1]->Name, "a"));
+  ASSERT(TargetList[1]->Type == FDEP_OBJ_MODULE);
+  ActualDependencyCount = 0;
+  for (i = 0; i < TargetList[1]->DependencyCount; i++) {
+    if (!TargetList[1]->DependencyList[i]->InCompilationUnit) {
+      ActualDependencyCount++;
+    }
+  }
+  ASSERT(ActualDependencyCount == 2);
+  ASSERT(0 == strcmp(TargetList[1]->DependencyList[0]->Name, FDEP_SOURCE_NAME));
+  ASSERT(TargetList[1]->DependencyList[0]->Type == FDEP_OBJ_SOURCE);
+  // Expected overshoot: a depends on c even though only 'subroutine b()'
+  // depends on c.
+  ASSERT(0 == strcmp(TargetList[1]->DependencyList[1]->Name, "c"));
+  ASSERT(TargetList[1]->DependencyList[1]->Type == FDEP_OBJ_MODULE);
 
   FDEP_FreeTargetList(&TargetList, TargetCount);
   FDEP_FreeStatementList(&StatementList, StatementCount);
@@ -1197,4 +1384,6 @@ TEST_SUITE(FunctionalSuite,
            Functional17,
            Functional18,
            Functional19,
-           Functional20);
+           Functional20,
+           Functional21,
+           Functional22);
