@@ -22,6 +22,10 @@ FDEP_FortranToken FDEP_GetToken(const char *const String) {
     Token = FDEP_TK_SUBROUTINE;
   } else if (strcmp(String, "end") == 0) {
     Token = FDEP_TK_END;
+  } else if (strcmp(String, "endmodule") == 0) {
+    Token = FDEP_TK_ENDMODULE;
+  } else if (strcmp(String, "endsubmodule") == 0) {
+    Token = FDEP_TK_ENDSUBMODULE;
   }
   return Token;
 }
@@ -121,6 +125,32 @@ bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
         } else {
           *IndexUse  = i;
           *IndexName = i + 1;
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool FDEP_StatementEndsProgramUnit(const FDEP_Statement *const Statement) {
+  size_t            i;
+  FDEP_FortranToken Token, FollowingToken;
+
+  if (!Statement || !(Statement->TokenList) || (Statement->TokenCount == 0)) {
+    return false;
+  }
+
+  for (i = 0; i < Statement->TokenCount; i++) {
+    Token = FDEP_GetToken(Statement->TokenList[i]);
+    if ((Token == FDEP_TK_ENDMODULE) || (Token == FDEP_TK_ENDSUBMODULE)) {
+      return true;
+    }
+    if (Token == FDEP_TK_END) {
+      if (i < Statement->TokenCount - 1) {
+        FollowingToken = FDEP_GetToken(Statement->TokenList[i + 1]);
+        if ((FollowingToken == FDEP_TK_MODULE) ||
+            (FollowingToken == FDEP_TK_SUBMODULE)) {
           return true;
         }
       }

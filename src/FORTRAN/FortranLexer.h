@@ -22,6 +22,8 @@ typedef enum {
   FDEP_TK_FUNCTION,      /**< "function" keyword */
   FDEP_TK_SUBROUTINE,    /**< "subroutine" keyword */
   FDEP_TK_END,           /**< "end" keyword */
+  FDEP_TK_ENDMODULE,     /**< "endmodule" keyword */
+  FDEP_TK_ENDSUBMODULE,  /**< "endsubmodule" keyword */
   FDEP_TK_UNKNOWN        /**< Unrecognized token */
 } FDEP_FortranToken;
 
@@ -91,6 +93,9 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
  *
  * @note
  * - Output parameters are only valid if the function returns true.
+ *
+ * @warning
+ * - Statement must be a valid, initialized FDEP_Statement.
  */
 bool FDEP_StatementContainsDefinedSubModule(
     const FDEP_Statement *const Statement,
@@ -120,9 +125,33 @@ bool FDEP_StatementContainsDefinedSubModule(
  *
  * @note
  * - Output parameters are only valid if the function returns true.
+ *
+ * @warning
+ * - Statement must be a valid, initialized FDEP_Statement.
  */
 bool FDEP_StatementContainsUsedModule(const FDEP_Statement *const Statement,
                                       size_t                     *IndexUse,
                                       size_t                     *IndexName);
+
+/**
+ * @brief Checks whether a statement ends a program unit.
+ *
+ * @details
+ * Determines whether the statement ends a module or submodule.
+ *
+ * @param[in] Statement
+ *     Tokenized statement to analyze.
+ *
+ * @return
+ * true if module or submodule ending is found, false otherwise.
+ *
+ * @note
+ * - Cannot determine wether the plain 'end' statement ends a program unit. Will
+ * return false in that case.
+ *
+ * @warning
+ * - Statement must be a valid, initialized FDEP_Statement.
+ */
+bool FDEP_StatementEndsProgramUnit(const FDEP_Statement *const Statement);
 
 #endif
