@@ -1,10 +1,6 @@
 #!/bin/bash
-# $1: source code.
-# $2: object directory.
-# Optional: can receive GCC's options for preprocessing.
-if [ -z "$2" ]; then
-	./tools/FortranDep $1
-else
-	#Appends "$2/" at the beginning of words with suffix .o, .d, .mod and .smod.
-	./tools/FortranDep -pd $1 | sed -E "s@(^|[[:space:]])([^[:space:]]+\.(o|d|mod|smod))@\1$2/\2@g"
-fi
+File="$1"
+Dir="$2"
+shift 2
+#Appends "$Dir/" at the beginning of words with suffix .o, .d, .mod and .smod.
+./tools/FortranDep -d $File $@ | sed -E "s@(^|[[:space:]])([^[:space:]]+\.(o|d|mod|smod))@\1$Dir/\2@g"

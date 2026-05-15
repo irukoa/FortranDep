@@ -24,6 +24,19 @@ typedef enum {
   FDEP_TK_END,           /**< "end" keyword */
   FDEP_TK_ENDMODULE,     /**< "endmodule" keyword */
   FDEP_TK_ENDSUBMODULE,  /**< "endsubmodule" keyword */
+  FDEP_TK_PURE,          /**< "pure" keyword */
+  FDEP_TK_IMPURE,        /**< "impure" keyword */
+  FDEP_TK_ELEMENTAL,     /**< "elemental" keyword */
+  FDEP_TK_RECURSIVE,     /**< "recursive" keyword */
+  FDEP_TK_NONRECURSIVE,  /**< "non_recursive" keyword */
+  FDEP_TK_INTEGER,       /**< "integer" keyword */
+  FDEP_TK_REAL,          /**< "real" keyword */
+  FDEP_TK_DOUBLE,        /**< "double" keyword */
+  FDEP_TK_COMPLEX,       /**< "complex" keyword */
+  FDEP_TK_LOGICAL,       /**< "logical" keyword */
+  FDEP_TK_CHARACTER,     /**< "character" keyword */
+  FDEP_TK_TYPE,          /**< "type" keyword */
+  FDEP_TK_CLASS,         /**< "class" keyword */
   FDEP_TK_UNKNOWN        /**< Unrecognized token */
 } FDEP_FortranToken;
 

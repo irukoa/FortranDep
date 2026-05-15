@@ -26,6 +26,32 @@ FDEP_FortranToken FDEP_GetToken(const char *const String) {
     Token = FDEP_TK_ENDMODULE;
   } else if (strcmp(String, "endsubmodule") == 0) {
     Token = FDEP_TK_ENDSUBMODULE;
+  } else if (strcmp(String, "pure") == 0) {
+    Token = FDEP_TK_PURE;
+  } else if (strcmp(String, "impure") == 0) {
+    Token = FDEP_TK_IMPURE;
+  } else if (strcmp(String, "elemental") == 0) {
+    Token = FDEP_TK_ELEMENTAL;
+  } else if (strcmp(String, "recursive") == 0) {
+    Token = FDEP_TK_RECURSIVE;
+  } else if (strcmp(String, "non_recursive") == 0) {
+    Token = FDEP_TK_NONRECURSIVE;
+  } else if (strcmp(String, "integer") == 0) {
+    Token = FDEP_TK_INTEGER;
+  } else if (strcmp(String, "real") == 0) {
+    Token = FDEP_TK_REAL;
+  } else if (strcmp(String, "double") == 0) {
+    Token = FDEP_TK_DOUBLE;
+  } else if (strcmp(String, "complex") == 0) {
+    Token = FDEP_TK_COMPLEX;
+  } else if (strcmp(String, "logical") == 0) {
+    Token = FDEP_TK_LOGICAL;
+  } else if (strcmp(String, "character") == 0) {
+    Token = FDEP_TK_CHARACTER;
+  } else if (strcmp(String, "type") == 0) {
+    Token = FDEP_TK_TYPE;
+  } else if (strcmp(String, "class") == 0) {
+    Token = FDEP_TK_CLASS;
   }
   return Token;
 }
@@ -50,13 +76,10 @@ bool FDEP_StatementContainsDefinedModule(const FDEP_Statement *const Statement,
           return false;
         }
       }
-      // Check that the token is not followed by "procedure", "function", or
-      // "subroutine".
+      // Check that the token is not followed by reserved keywords.
       if (i < Statement->TokenCount - 1) {
         FollowingToken = FDEP_GetToken(Statement->TokenList[i + 1]);
-        if ((FollowingToken == FDEP_TK_PROCEDURE) ||
-            (FollowingToken == FDEP_TK_FUNCTION) ||
-            (FollowingToken == FDEP_TK_SUBROUTINE)) {
+        if (FollowingToken != FDEP_TK_UNKNOWN) {
           return false;
         }
       }
